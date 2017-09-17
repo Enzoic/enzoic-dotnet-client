@@ -33,7 +33,7 @@ namespace PasswordPingClient
         /// *      - Day set to the first of the month if only the month is known(e.g. "2015-06-01" if Exposure date was sometime in June 2015)
         /// *      - Otherwise, exact date if exact date is known, including time
         /// </summary>
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         /// <summary>
         /// A category for the origin website, if the exposure was a data breach.
@@ -53,7 +53,7 @@ namespace PasswordPingClient
         /// <summary>
         /// The date the Exposure was found and added to the PasswordPing database.
         /// </summary>
-        public DateTime DateAdded { get; set; }
+        public DateTime? DateAdded { get; set; }
 
         /// <summary>
         /// An array of URLs the data was found at. Only present for some types of Exposures, like when the source was a paste site.

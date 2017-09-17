@@ -47,9 +47,9 @@ namespace PasswordPingClientTest
 
             // test a known good value
             result = passwordping.GetExposuresForUser("eicar");
-            Assert.AreEqual(4, result.Count);
-            Assert.AreEqual(4, result.Exposures.Length);
-            CollectionAssert.AreEqual(new String[] { "5820469ffdb8780510b329cc", "58258f5efdb8780be88c2c5d", "582a8e51fdb87806acc426ff", "583d2f9e1395c81f4cfa3479" }, result.Exposures);
+            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(5, result.Exposures.Length);
+            CollectionAssert.AreEqual(new String[] { "5820469ffdb8780510b329cc", "58258f5efdb8780be88c2c5d", "582a8e51fdb87806acc426ff", "583d2f9e1395c81f4cfa3479", "59ba1aa369644815dcd8683e" }, result.Exposures);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace PasswordPingClientTest
             Assert.AreEqual("5820469ffdb8780510b329cc", result.ID);
             Assert.AreEqual("last.fm", result.Title);
             Assert.AreEqual("Music", result.Category);
-            Assert.AreEqual(634661568000000000L, result.Date.Ticks);
+            Assert.AreEqual(634661568000000000L, result.Date.Value.Ticks);
             Assert.AreEqual("MD5", result.PasswordType);
             CollectionAssert.AreEqual(new String[] { "Emails", "Passwords", "Usernames", "Website Activity" }, result.ExposedData);
             Assert.AreEqual(43570999, result.Entries);
