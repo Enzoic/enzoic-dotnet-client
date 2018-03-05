@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PasswordPingClient;
+using PasswordPingClient.Enums;
 
 namespace PasswordPingClientTest
 {
@@ -33,6 +34,18 @@ namespace PasswordPingClientTest
 
             exposed = passwordping.CheckCredentials("test@passwordping.com", "notvalid");
             Assert.IsFalse(exposed);
+
+            exposed = passwordping.CheckCredentials("testpwdpng445", "testpwdpng4452");
+            Assert.IsTrue(exposed);
+
+            exposed = passwordping.CheckCredentials("testpwdpng445", "notvalid");
+            Assert.IsFalse(exposed);
+
+            exposed = passwordping.CheckCredentials("testpwdpng445", "testpwdpng4452", null, new PasswordType[] { PasswordType.vBulletinPost3_8_5 });
+            Assert.IsFalse(exposed);
+
+            exposed = passwordping.CheckCredentials("testpwdpng445", "testpwdpng4452", new DateTime(2018, 3, 1), null);
+            Assert.IsFalse(exposed);
         }
 
         [TestMethod]
@@ -47,9 +60,15 @@ namespace PasswordPingClientTest
 
             // test a known good value
             result = passwordping.GetExposuresForUser("eicar");
-            Assert.AreEqual(5, result.Count);
-            Assert.AreEqual(5, result.Exposures.Length);
-            CollectionAssert.AreEqual(new String[] { "5820469ffdb8780510b329cc", "58258f5efdb8780be88c2c5d", "582a8e51fdb87806acc426ff", "583d2f9e1395c81f4cfa3479", "59ba1aa369644815dcd8683e" }, result.Exposures);
+            Assert.AreEqual(6, result.Count);
+            Assert.AreEqual(6, result.Exposures.Length);
+            CollectionAssert.AreEqual(new String[] {
+                "5820469ffdb8780510b329cc",
+                "58258f5efdb8780be88c2c5d",
+                "582a8e51fdb87806acc426ff",
+                "583d2f9e1395c81f4cfa3479",
+                "59ba1aa369644815dcd8683e",
+                "59cae0ce1d75b80e0070957c" }, result.Exposures);
         }
 
         [TestMethod]
@@ -81,8 +100,24 @@ namespace PasswordPingClientTest
 
             Assert.IsFalse(passwordping.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd"));
             Assert.IsTrue(passwordping.CheckPassword("123456"));
+
+            // try with out parameters
+            bool revealedInExposure;
+            int? relativeExposureFrequency;
+
+            Assert.IsFalse(passwordping.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd", out revealedInExposure, out relativeExposureFrequency));
+            Assert.AreEqual(false, revealedInExposure);
+            Assert.IsNull(relativeExposureFrequency);
+
+            Assert.IsTrue(passwordping.CheckPassword("`!(&,<:{`>", out revealedInExposure, out relativeExposureFrequency));
+            Assert.AreEqual(false, revealedInExposure);
+            Assert.IsNull(relativeExposureFrequency);
+
+            Assert.IsTrue(passwordping.CheckPassword("password", out revealedInExposure, out relativeExposureFrequency));
+            Assert.AreEqual(true, revealedInExposure);
+            Assert.IsTrue(relativeExposureFrequency > 0);
         }
-        
+
         // HELPER METHODS
 
         private bool CheckConstructorWithParameters(String apiKey, String secret)

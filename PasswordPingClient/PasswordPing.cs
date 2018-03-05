@@ -64,6 +64,46 @@ namespace PasswordPingClient
         }
 
         /// <summary>
+        /// Checks whether the provided password is in the PasswordPing database of known, compromised passwords.
+        /// @see <a href="https://www.passwordping.com/docs/passwords-api">https://www.passwordping.com/docs/passwords-api</a>
+        /// </summary>
+        /// <param name="password">The password to be checked</param>
+        /// <param name="revealedInExposure">Out parameter.  Whether the password was exposed in a known data Exposure. If this value 
+        /// is false, the password was found in common password cracking dictionaries, but has not been directly exposed as a user 
+        /// password in a data breach or other Exposure.</param>
+        /// <param name="relativeExposureFrequency">This is a gauge of how frequently the password has been seen in data breaches. 
+        /// The value is simply the percent of data 
+        /// breaches indexed by PasswordPing that have contained at least one instance of this password, i.e. if the value is 13, 
+        /// that means 13% of the exposures that PasswordPing has indexed contained this password at least one time. This value can 
+        /// be used to gauge how dangerous this password is by how common it is.</param>
+        /// <returns>True if the password is a known, compromised password and should not be used</returns>
+        public bool CheckPassword(string password, out bool revealedInExposure, out int? relativeExposureFrequency)
+        {
+            String response = MakeRestCall(
+                    apiBaseURL + PASSWORDS_API_PATH +
+                        "?md5=" + Hashing.CalcMD5(password) +
+                        "&sha1=" + Hashing.CalcSHA1(password) +
+                        "&sha256=" + Hashing.CalcSHA256(password),
+                    "GET", null);
+
+            if (response == "404")
+            {
+                revealedInExposure = false;
+                relativeExposureFrequency = null;
+                return false;
+            }   
+            else
+            {
+                // deserialize response
+                PasswordsResponse passwordsResponse = JsonConvert.DeserializeObject<PasswordsResponse>(response);
+
+                revealedInExposure = passwordsResponse.revealedInExposure;
+                relativeExposureFrequency = passwordsResponse.relativeExposureFrequency;
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Calls the PasswordPing CheckCredentials API in a secure fashion to check whether the provided username and password
         /// are known to be compromised.
         /// This call is made securely to the server - only a salted and hashed representation of the credentials are passed and
@@ -72,8 +112,16 @@ namespace PasswordPingClient
         /// </summary>
         /// <param name="username">the username to check - may be an email address or username</param>
         /// <param name="password">the password to check</param>
+        /// <param name="lastCheckDate">(Optional) The timestamp for the last check you performed for this user.  If the date/time you provide 
+        /// for the last check is greater than the timestamp PasswordPing has for the last breach affecting this user, the check will 
+        /// not be performed.This can be used to substantially increase performance.Can be set to null if no last check was performed 
+        /// or the credentials have changed since.</param>
+        /// <param name="excludeHashTypes">(Optional) An array of PasswordTypes to ignore when calculating hashes for the credentials check.  
+        /// By excluding computationally expensive PasswordTypes, such as BCrypt, it is possible to balance the performance of this 
+        /// call against security.Can be set to null if you don't wish to exclude any hash types.</param>
         /// <returns>true if the credentials are known to be compromised, false otherwise</returns>
-        public bool CheckCredentials(string username, string password)
+        public bool CheckCredentials(string username, string password, DateTime? lastCheckDate = null, 
+            PasswordType[] excludeHashTypes = null)
         {
             String response = MakeRestCall(
                     apiBaseURL + ACCOUNTS_API_PATH + "?username=" +
@@ -89,11 +137,23 @@ namespace PasswordPingClient
             // deserialize response
             AccountsResponse accountsResponse = JsonConvert.DeserializeObject<AccountsResponse>(response);
 
+            // see if the lastCheckDate was later than the lastBreachDate - if so bail out
+            if (lastCheckDate.HasValue && lastCheckDate.Value >= accountsResponse.lastBreachDate)
+            {
+                return false;
+            }
+
             int bcryptCount = 0;
 
             StringBuilder queryString = new StringBuilder();
             foreach (PasswordHashSpecification hashSpec in accountsResponse.PasswordHashesRequired)
             {
+                if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
+                {
+                    // this type is excluded
+                    continue;
+                }
+
                 // bcrypt gets far too expensive for good response time if there are many of them to calculate.
                 // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
                 // kills performance, so short circuit out after at most 2 BCrypt hashes

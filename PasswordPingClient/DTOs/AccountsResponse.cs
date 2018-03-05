@@ -20,5 +20,11 @@ namespace PasswordPingClient.DTOs
         /// The list of password hashes required to be calculated when checking credentials for this account
         /// </summary>
         public PasswordHashSpecification[] PasswordHashesRequired { get; set; }
+
+        /// <summary>
+        /// The date of the last breach affecting this user.  Can be used to determine if any new breached credentials have
+        /// been indexed since the last time a check was run for these credentials.
+        /// </summary>
+        public DateTime lastBreachDate { get; set; }
     }
 }
