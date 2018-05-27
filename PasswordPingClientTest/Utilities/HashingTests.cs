@@ -25,6 +25,21 @@ namespace PasswordPingTest.Utilities
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.vBulletinPre3_8_5, "123456", "123"), "77d3b7ed9db7d236b9eac8262d27f6a5");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.MD5Crypt, "123456", "$1$4d3c09ea"), "$1$4d3c09ea$hPwyka2ToWFbLTOq.yFjf.");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm4, "1234", "$2y$12$Yjk3YjIzYWIxNDg0YWMzZOpp/eAMuWCD3UwX1oYgRlC1ci4Al970W"), "$2y$12$Yjk3YjIzYWIxNDg0YWMzZOpp/eAMuWCD3UwX1oYgRlC1ci4Al970W");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm5, "password", "123456"), "69e7ade919a318d8ecf6fd540bad9f169bce40df4cae4ac1fb6be2c48c514163");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.osCommerce_AEF, "password", "123"), "d2bc2f8d09990ebe87c809684fd78c66");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.DESCrypt, "qwerty", "yD"), "yDba8kDA7NUDQ");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.DESCrypt, "password", "X."), "X.OPW8uuoq5N.");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.MySQLPre4_1, "password"), "5d2e19393cc5ef67");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.MySQLPost4_1, "test"), "*94bdcebe19083ce2a1f959fd02f964c7af4cfc29");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PeopleSoft, "TESTING"), "3weP/BR8RHPLP2459h003IgJxyU=");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PunBB, "password", "123"), "0c9a0dc3dd0b067c016209fd46749c281879069e");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PartialMD5_20, "password"), "5f4dcc3b5aa765d61d83");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.AVE_DataLife_Diferior, "password"), "696d29e0940a4957748fe3fc9efd22a3");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.DjangoMD5, "password", "c6218"), "md5$c6218$346abd81f2d88b4517446316222f4276");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.DjangoSHA1, "password", "c6218"), "sha1$c6218$161d1ac8ab38979c5a31cbaba4a67378e7e60845");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PartialMD5_29, "password"), "5f4dcc3b5aa765d61d8327deb882c");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PliggCMS, "password", "123"), "1230de084f38ace8e3d82597f55cc6ad5d6001568e6");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.RunCMS_SMF1_1, "password", "123"), "0de084f38ace8e3d82597f55cc6ad5d6001568e6");
         }
 
         [TestMethod]

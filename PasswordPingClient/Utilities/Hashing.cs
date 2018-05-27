@@ -47,6 +47,37 @@ namespace PasswordPingClient.Utilities
                     return CalcCustomAlgorithm4(password, salt);
                 case PasswordType.MD5Crypt:
                     return CalcMD5Crypt(password, salt);
+                case PasswordType.CustomAlgorithm5:
+                    return CalcCustomAlgorithm5(password, salt);
+                case PasswordType.DESCrypt:
+                    return CalcDESCrypt(password, salt);
+                case PasswordType.SCrypt:
+                    return CalcSCrypt(password, salt);
+                case PasswordType.MySQLPre4_1:
+                    return CalcMySQLPre4_1(password);
+                case PasswordType.MySQLPost4_1:
+                    return CalcMySQLPost4_1(password);
+                case PasswordType.PeopleSoft:
+                    return CalcPeopleSoft(password);
+                case PasswordType.PunBB:
+                    return CalcPunBB(password, salt);
+                case PasswordType.osCommerce_AEF:
+                    return ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(salt + password)));
+                case PasswordType.PartialMD5_20:
+                    return CalcMD5(password).Substring(0, 20);
+                case PasswordType.AVE_DataLife_Diferior:
+                    return CalcMD5(CalcMD5(password));
+                case PasswordType.DjangoMD5:
+                    return CalcDjangoMD5(password, salt);
+                case PasswordType.DjangoSHA1:
+                    return CalcDjangoSHA1(password, salt);
+                case PasswordType.PartialMD5_29:
+                    return CalcMD5(password).Substring(0, 29);
+                case PasswordType.PliggCMS:
+                    return salt + CalcSHA1(salt + password); // salt is prepended to hash
+                case PasswordType.RunCMS_SMF1_1:
+                    return CalcSHA1(salt + password); // salt is username
+
                 default:
                     throw new Exception("Unsupported PasswordType in PasswordHashCalc");
             }
@@ -129,6 +160,77 @@ namespace PasswordPingClient.Utilities
         public static string CalcMD5Crypt(string password, string salt)
         {
             return CryptSharp.MD5Crypter.MD5.Crypt(Encoding.UTF8.GetBytes(password), salt);
+        }
+
+        public static string CalcCustomAlgorithm5(string password, string salt)
+        {
+            return CalcSHA256(CalcMD5(password + salt));
+        }
+
+        public static string CalcDESCrypt(string password, string salt)
+        {
+            return CryptSharp.TraditionalDesCrypter.TraditionalDes.Crypt(Encoding.UTF8.GetBytes(password), salt);
+        }
+
+        public static string CalcSCrypt(string password, string salt)
+        {
+            return CryptSharp.Sha256Crypter.Sha256.Crypt(Encoding.UTF8.GetBytes(password), salt);
+        }
+
+        public static string CalcMySQLPre4_1(string password)
+        {
+            uint result1;
+            uint result2;
+            uint nr = 1345345333;
+            uint add = 7;
+            uint nr2 = 0x12345671;
+            uint tmp;
+
+            foreach (char c in password)
+            {
+                if (c == ' ' || c == '\t')
+                    continue;
+
+                tmp = c;
+                nr ^= (((nr & 63) + add) * tmp) + (nr << 8);
+                nr2 += (nr2 << 8) ^ nr;
+                add += tmp;
+            }
+
+            result1 = nr & (((uint)1 << 31) - 1);
+            result2 = nr2 & (((uint)1 << 31) - 1);
+
+            return result1.ToString("x") + result2.ToString("x");
+        }
+
+        public static string CalcMySQLPost4_1(string password)
+        {
+            return "*" + ToHexString(sha1.ComputeHash(sha1.ComputeHash(Encoding.UTF8.GetBytes(password))));
+        }
+
+        public static string CalcPeopleSoft(string password)
+        {
+            return Convert.ToBase64String(sha1.ComputeHash(Encoding.Unicode.GetBytes(password)));
+        }
+
+        public static string CalcPunBB(string password, string salt)
+        {
+            return CalcSHA1(salt + CalcSHA1(password));
+        }
+
+        public static string CalcCustomAlgorithm6(string password, string salt)
+        {
+            return CalcSHA1(password + salt);
+        }
+
+        public static string CalcDjangoMD5(string password, string salt)
+        {
+            return "md5$" + salt + "$" + CalcMD5(salt + password);
+        }
+
+        public static string CalcDjangoSHA1(string password, string salt)
+        {
+            return "sha1$" + salt + "$" + CalcSHA1(salt + password);
         }
 
         public static string CalcArgon2(string password, string salt)

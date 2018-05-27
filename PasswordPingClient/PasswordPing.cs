@@ -53,14 +53,10 @@ namespace PasswordPingClient
         /// <returns>True if the password is a known, compromised password and should not be used</returns>
         public bool CheckPassword(string password)
         {
-            String response = MakeRestCall(
-                    apiBaseURL + PASSWORDS_API_PATH +
-                        "?md5=" + Hashing.CalcMD5(password) +
-                        "&sha1=" + Hashing.CalcSHA1(password) +
-                        "&sha256=" + Hashing.CalcSHA256(password),
-                    "GET", null);
+            bool revealedInExposure;
+            int? relativeExposureFrequency;
 
-            return response != "404";
+            return CheckPassword(password, out revealedInExposure, out relativeExposureFrequency);
         }
 
         /// <summary>
@@ -79,28 +75,37 @@ namespace PasswordPingClient
         /// <returns>True if the password is a known, compromised password and should not be used</returns>
         public bool CheckPassword(string password, out bool revealedInExposure, out int? relativeExposureFrequency)
         {
+            string md5 = Hashing.CalcMD5(password);
+            string sha1 = Hashing.CalcSHA1(password);
+            string sha256 = Hashing.CalcSHA256(password);
+
             String response = MakeRestCall(
                     apiBaseURL + PASSWORDS_API_PATH +
-                        "?md5=" + Hashing.CalcMD5(password) +
-                        "&sha1=" + Hashing.CalcSHA1(password) +
-                        "&sha256=" + Hashing.CalcSHA256(password),
+                        "?partial_md5=" + md5.Substring(0, 10) +
+                        "&partial_sha1=" + sha1.Substring(0, 10) +
+                        "&partial_sha256=" + sha256.Substring(0, 10),
                     "GET", null);
 
-            if (response == "404")
+            if (response != "404")
             {
-                revealedInExposure = false;
-                relativeExposureFrequency = null;
-                return false;
-            }   
-            else
-            {
-                // deserialize response
-                PasswordsResponse passwordsResponse = JsonConvert.DeserializeObject<PasswordsResponse>(response);
+                dynamic responseObj = JObject.Parse(response);
 
-                revealedInExposure = passwordsResponse.revealedInExposure;
-                relativeExposureFrequency = passwordsResponse.relativeExposureFrequency;
-                return true;
+                foreach (dynamic candidate in responseObj.candidates)
+                {
+                    if (candidate.md5 == md5 ||
+                        candidate.sha1 == sha1 ||
+                        candidate.sha256 == sha256)
+                    {
+                        revealedInExposure = candidate.revealedInExposure;
+                        relativeExposureFrequency = candidate.relativeExposureFrequency;
+                        return true;
+                    }
+                }
             }
+
+            revealedInExposure = false;
+            relativeExposureFrequency = null;
+            return false;
         }
 
         /// <summary>
@@ -145,6 +150,7 @@ namespace PasswordPingClient
 
             int bcryptCount = 0;
 
+            List<string> credentialHashes = new List<string>();
             StringBuilder queryString = new StringBuilder();
             foreach (PasswordHashSpecification hashSpec in accountsResponse.PasswordHashesRequired)
             {
@@ -165,10 +171,11 @@ namespace PasswordPingClient
 
                     if (credentialHash != null)
                     {
+                        credentialHashes.Add(credentialHash);
                         if (queryString.Length == 0)
-                            queryString.Append("?hashes=").Append(credentialHash);
+                            queryString.Append("?partialHashes=").Append(credentialHash.Substring(0, 10));
                         else
-                            queryString.Append("&hashes=").Append(credentialHash);
+                            queryString.Append("&partialHashes=").Append(credentialHash.Substring(0, 10));
                     }
                 }
             }
@@ -178,7 +185,20 @@ namespace PasswordPingClient
                 String credsResponse = MakeRestCall(
                         apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
 
-                return credsResponse != "404";
+                if (credsResponse != "404")
+                {
+                    // loop through candidate hashes returned and see if we have a match with the exact hash
+                    dynamic responseObj = JObject.Parse(credsResponse);
+
+                    foreach (dynamic candidate in responseObj.candidateHashes)
+                    {
+                        if (credentialHashes.FirstOrDefault(hash => hash == candidate.ToString()) != null)
+                        {
+                            return true;
+                        }
+                    }
+
+                }
             }
 
             return false;
