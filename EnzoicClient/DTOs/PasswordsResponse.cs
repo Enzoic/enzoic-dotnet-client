@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PasswordPingClient.DTOs
+namespace EnzoicClient.DTOs
 {
     /// <summary>
     /// Response object for Passwords API call - internal use only
@@ -19,8 +19,8 @@ namespace PasswordPingClient.DTOs
 
         /// <summary>
         /// This is a gauge of how frequently the password has been seen in data breaches. The value is simply the percent of data 
-        /// breaches indexed by PasswordPing that have contained at least one instance of this password, i.e. if the value is 13, 
-        /// that means 13% of the exposures that PasswordPing has indexed contained this password at least one time. This value can 
+        /// breaches indexed by Enzoic that have contained at least one instance of this password, i.e. if the value is 13, 
+        /// that means 13% of the exposures that Enzoic has indexed contained this password at least one time. This value can 
         /// be used to gauge how dangerous this password is by how common it is.
         /// </summary>
         public int? relativeExposureFrequency { get; set; }

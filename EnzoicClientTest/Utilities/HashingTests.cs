@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PasswordPingClient.Enums;
-using PasswordPingClient.Utilities;
+using EnzoicClient.Enums;
+using EnzoicClient.Utilities;
 
-namespace PasswordPingTest.Utilities
+namespace EnzoicClientTest.Utilities
 {
     [TestClass]
     public class HashingTests

@@ -1,4 +1,4 @@
-# PasswordPing .NET Client Library
+# Enzoic .NET Client Library
 
 ## TOC
 
@@ -6,7 +6,7 @@ This README covers the following topics:
 
 - [Installation](#installation)
 - [API Overview](#api-overview)
-- [The PasswordPing constructor](#the-passwordping-constructor)
+- [The Enzoic constructor](#the-enzoic-constructor)
 - [JavaDocs](#javadocs)
 
 ## Installation
@@ -16,7 +16,7 @@ The compiled library is available from NuGet:
 ### Nuget
 
 ```
-Install-Package PasswordPing
+Install-Package Enzoic
 ```
 
 ## API Overview
@@ -24,11 +24,11 @@ Install-Package PasswordPing
 Here's the API in a nutshell.
 
 ```cs
-// Create a new PasswordPing instance - this is our primary interface for making API calls
-PasswordPing passwordping = new PasswordPing("YOUR_API_KEY", "YOUR_API_SECRET");
+// Create a new Enzoic instance - this is our primary interface for making API calls
+Enzoic enzoic = new Enzoic("YOUR_API_KEY", "YOUR_API_SECRET");
  
 // Check whether a password has been compromised
-if (passwordping.CheckPassword("password-to-test")) {
+if (enzoic.CheckPassword("password-to-test")) {
     Console.WriteLine("Password is compromised");
 }
 else {
@@ -36,7 +36,7 @@ else {
 }
  
 // Check whether a specific set of credentials are compromised
-if (passwordping.CheckCredentials("test@passwordping.com", "password-to-test")) {
+if (enzoic.CheckCredentials("test@enzoic.com", "password-to-test")) {
     Console.WriteLine("Credentials are compromised");
 }
 else {
@@ -45,7 +45,7 @@ else {
 
 // Use the optional parameters on the CheckCredentials call to tweak performance by including the
 // date/time of the last check and excluding BCrypt
-if (passwordping.CheckCredentials("test@passwordping.com", "password-to-test",
+if (enzoic.CheckCredentials("test@enzoic.com", "password-to-test",
         lastCheckTimestamp, new PasswordType[] { PasswordType.BCrypt })) {
     Console.WriteLine("Credentials are compromised");
 }
@@ -55,37 +55,37 @@ else {
 
  
 // get all exposures for a given user
-ExposuresResponse exposures = passwordping.GetExposuresForUser("test@passwordping.com");
-Console.WriteLine(exposures.Count + " exposures found for test@passwordping.com");
+ExposuresResponse exposures = enzoic.GetExposuresForUser("test@enzoic.com");
+Console.WriteLine(exposures.Count + " exposures found for test@enzoic.com");
  
 // now get the full details for the first exposure returned in the exposures response
-ExposureDetails details = passwordping.GetExposureDetails(exposures.Exposures[0]);
-Console.WriteLine("First exposure for test@passwordping.com was " + details.Title);
+ExposureDetails details = enzoic.GetExposureDetails(exposures.Exposures[0]);
+Console.WriteLine("First exposure for test@enzoic.com was " + details.Title);
 ```
 
 More information in reference format can be found below.
 
-## The PasswordPing constructor
+## The Enzoic constructor
 
-The standard constructor takes the API key and secret you were issued on PasswordPing signup.
+The standard constructor takes the API key and secret you were issued on Enzoic signup.
 
 ```cs
-PasswordPing passwordping = new PasswordPing("YOUR_API_KEY", "YOUR_API_SECRET");
+Enzoic enzoic = new Enzoic("YOUR_API_KEY", "YOUR_API_SECRET");
 ```
 
 If you were instructed to use an alternate API endpoint, you may call the overloaded constructor and pass the base URL you were provided.
 
 ```cs
-PasswordPing passwordping = new PasswordPing("YOUR_API_KEY", "YOUR_API_SECRET", "https://api-alt.passwordping.com/v1");
+Enzoic enzoic = new Enzoic("YOUR_API_KEY", "YOUR_API_SECRET", "https://api-alt.enzoic.com/v1");
 ```
 
 ## ExposuresResponse
 
-The PasswordPing.GetExposuresForUser method returns the response object below.
+The Enzoic.GetExposuresForUser method returns the response object below.
 
 ```cs
     /// <summary>
-    /// Response object for the PasswordPing.GetExposuresForUser method
+    /// Response object for the Enzoic.GetExposuresForUser method
     /// </summary>
     public class ExposuresResponse
     {
@@ -103,7 +103,7 @@ The PasswordPing.GetExposuresForUser method returns the response object below.
 
 ## ExposureDetails
 
-The PasswordPing.GetExposureDetails method returns the response object below.
+The Enzoic.GetExposureDetails method returns the response object below.
 
 ```cs
     /// <summary>
@@ -151,7 +151,7 @@ The PasswordPing.GetExposureDetails method returns the response object below.
         public String[] ExposedData { get; set; }
 
         /// <summary>
-        /// The date the Exposure was found and added to the PasswordPing database.
+        /// The date the Exposure was found and added to the Enzoic database.
         /// </summary>
         public DateTime DateAdded { get; set; }
 

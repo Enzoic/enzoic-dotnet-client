@@ -1,16 +1,16 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PasswordPingClient;
-using PasswordPingClient.Enums;
+using EnzoicClient;
+using EnzoicClient.Enums;
 
-namespace PasswordPingClientTest
+namespace EnzoicClientTest
 {
     /// <summary>
     /// These are actually live tests and require a valid API key and Secret to be set in your environment variables.
     /// Set an env var for PP_API_KEY and PP_API_SECRET with the respective values prior to running the tests.
     /// </summary>
     [TestClass]
-    public class PasswordPingTests
+    public class EnzoicTests
     {
         [TestMethod]
         public void TestConstructor()
@@ -27,61 +27,64 @@ namespace PasswordPingClientTest
         [TestMethod]
         public void TestCheckCredentials()
         {
-            PasswordPing passwordping = GetPasswordPing();
+            Enzoic enzoic = GetEnzoic();
 
-            bool exposed = passwordping.CheckCredentials("test@passwordping.com", "123456");
+            bool exposed = enzoic.CheckCredentials("test@passwordping.com", "123456");
             Assert.IsTrue(exposed);
 
-            exposed = passwordping.CheckCredentials("test@passwordping.com", "notvalid");
+            exposed = enzoic.CheckCredentials("test@passwordping.com", "notvalid");
             Assert.IsFalse(exposed);
 
-            exposed = passwordping.CheckCredentials("testpwdpng445", "testpwdpng4452");
+            exposed = enzoic.CheckCredentials("testpwdpng445", "testpwdpng4452");
             Assert.IsTrue(exposed);
 
-            exposed = passwordping.CheckCredentials("testpwdpng445", "notvalid");
+            exposed = enzoic.CheckCredentials("testpwdpng445", "notvalid");
             Assert.IsFalse(exposed);
 
-            exposed = passwordping.CheckCredentials("testpwdpng445", "testpwdpng4452", null, new PasswordType[] { PasswordType.vBulletinPost3_8_5 });
+            exposed = enzoic.CheckCredentials("testpwdpng445", "testpwdpng4452", null, new PasswordType[] { PasswordType.vBulletinPost3_8_5 });
             Assert.IsFalse(exposed);
 
-            exposed = passwordping.CheckCredentials("testpwdpng445", "testpwdpng4452", new DateTime(2018, 3, 1), null);
+            exposed = enzoic.CheckCredentials("testpwdpng445", "testpwdpng4452", new DateTime(2018, 3, 1), null);
             Assert.IsFalse(exposed);
         }
 
         [TestMethod]
         public void TestGetExposuresForUser()
         {
-            PasswordPing passwordping = GetPasswordPing();
+            Enzoic enzoic = GetEnzoic();
 
             // test bad value
-            ExposuresResponse result = passwordping.GetExposuresForUser("@@bogus-username@@");
+            ExposuresResponse result = enzoic.GetExposuresForUser("@@bogus-username@@");
             Assert.IsTrue(result.Count == 0);
             Assert.IsTrue(result.Exposures.Length == 0);
 
             // test a known good value
-            result = passwordping.GetExposuresForUser("eicar");
-            Assert.AreEqual(6, result.Count);
-            Assert.AreEqual(6, result.Exposures.Length);
+            result = enzoic.GetExposuresForUser("eicar");
+            Assert.AreEqual(8, result.Count);
+            Assert.AreEqual(8, result.Exposures.Length);
             CollectionAssert.AreEqual(new String[] {
                 "5820469ffdb8780510b329cc",
                 "58258f5efdb8780be88c2c5d",
                 "582a8e51fdb87806acc426ff",
                 "583d2f9e1395c81f4cfa3479",
                 "59ba1aa369644815dcd8683e",
-                "59cae0ce1d75b80e0070957c" }, result.Exposures);
+                "59cae0ce1d75b80e0070957c",
+                "5bc64f5f4eb6d894f09eae70",
+                "5bdcb0944eb6d8a97cfacdff"
+            }, result.Exposures);
         }
 
         [TestMethod]
         public void TestGetExposureDetails()
         {
-            PasswordPing passwordping = GetPasswordPing();
+            Enzoic enzoic = GetEnzoic();
 
             // test bad value
-            ExposureDetails result = passwordping.GetExposureDetails("111111111111111111111111");
+            ExposureDetails result = enzoic.GetExposureDetails("111111111111111111111111");
             Assert.AreEqual(null, result);
 
             // test a known good value
-            result = passwordping.GetExposureDetails("5820469ffdb8780510b329cc");
+            result = enzoic.GetExposureDetails("5820469ffdb8780510b329cc");
             Assert.IsTrue(result != null);
             Assert.AreEqual("5820469ffdb8780510b329cc", result.ID);
             Assert.AreEqual("last.fm", result.Title);
@@ -96,24 +99,24 @@ namespace PasswordPingClientTest
         [TestMethod]
         public void TestCheckPassword()
         {
-            PasswordPing passwordping = GetPasswordPing();
+            Enzoic enzoic = GetEnzoic();
 
-            Assert.IsFalse(passwordping.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd"));
-            Assert.IsTrue(passwordping.CheckPassword("123456"));
+            Assert.IsFalse(enzoic.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd"));
+            Assert.IsTrue(enzoic.CheckPassword("123456"));
 
             // try with out parameters
             bool revealedInExposure;
             int? relativeExposureFrequency;
 
-            Assert.IsFalse(passwordping.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd", out revealedInExposure, out relativeExposureFrequency));
+            Assert.IsFalse(enzoic.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd", out revealedInExposure, out relativeExposureFrequency));
             Assert.AreEqual(false, revealedInExposure);
             Assert.IsNull(relativeExposureFrequency);
 
-            Assert.IsTrue(passwordping.CheckPassword("`!(&,<:{`>", out revealedInExposure, out relativeExposureFrequency));
+            Assert.IsTrue(enzoic.CheckPassword("`!(&,<:{`>", out revealedInExposure, out relativeExposureFrequency));
             Assert.AreEqual(false, revealedInExposure);
             Assert.IsNull(relativeExposureFrequency);
 
-            Assert.IsTrue(passwordping.CheckPassword("password", out revealedInExposure, out relativeExposureFrequency));
+            Assert.IsTrue(enzoic.CheckPassword("password", out revealedInExposure, out relativeExposureFrequency));
             Assert.AreEqual(true, revealedInExposure);
             Assert.IsTrue(relativeExposureFrequency > 0);
         }
@@ -124,7 +127,7 @@ namespace PasswordPingClientTest
         {
             try
             {
-                new PasswordPing(apiKey, secret);
+                new Enzoic(apiKey, secret);
             }
             catch (Exception)
             {
@@ -134,9 +137,9 @@ namespace PasswordPingClientTest
             return false;
         }
 
-        private PasswordPing GetPasswordPing()
+        private Enzoic GetEnzoic()
         {
-            return new PasswordPing(GetAPIKey(), GetAPISecret());
+            return new Enzoic(GetAPIKey(), GetAPISecret());
         }
 
         private String GetAPIKey()

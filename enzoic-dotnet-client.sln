@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasswordPingClient", "PasswordPingClient\PasswordPingClient.csproj", "{3C426A6C-4B8E-4802-A4DB-6446A15EAACC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClient", "EnzoicClient\EnzoicClient.csproj", "{3C426A6C-4B8E-4802-A4DB-6446A15EAACC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasswordPingClientTest", "PasswordPingClientTest\PasswordPingClientTest.csproj", "{3CBF765B-7046-4975-809F-0474C2E202D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientTest", "EnzoicClientTest\EnzoicClientTest.csproj", "{3CBF765B-7046-4975-809F-0474C2E202D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {71D774CD-905A-4A04-A933-EA8C7B0CEE17}
 	EndGlobalSection
 EndGlobal

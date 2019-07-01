@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PasswordPingClient.DTOs
+namespace EnzoicClient.DTOs
 {
     /// <summary>
     /// Response object for Accounts API call - internal use only

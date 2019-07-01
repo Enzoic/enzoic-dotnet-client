@@ -3,10 +3,10 @@ using System.Text;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
 using System.Data.HashFunction.CRCStandards;
-using PasswordPingClient.Enums;
+using EnzoicClient.Enums;
 using Liphsoft.Crypto.Argon2;
 
-namespace PasswordPingClient.Utilities
+namespace EnzoicClient.Utilities
 {
     public static class Hashing
     {

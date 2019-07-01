@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
-using PasswordPingClient.Enums;
-using PasswordPingClient.Utilities;
-using PasswordPingClient.DTOs;
+using EnzoicClient.Enums;
+using EnzoicClient.Utilities;
+using EnzoicClient.DTOs;
 
-namespace PasswordPingClient
+namespace EnzoicClient
 {
-    public class PasswordPing
+    public class Enzoic
     {
         private const String CREDENTIALS_API_PATH = "/credentials";
         private const String PASSWORDS_API_PATH = "/passwords";
@@ -26,11 +26,11 @@ namespace PasswordPingClient
         private String apiBaseURL;
 
         /// <summary>
-        /// Creates a new instance of PasswordPing
+        /// Creates a new instance of Enzoic
         /// </summary>
-        /// <param name="apiKey">your PasswordPing API key</param>
-        /// <param name="apiSecret">your PasswordPing API secret</param>
-        public PasswordPing(string apiKey, string apiSecret, string apiBaseURL = "https://api.passwordping.com/v1")
+        /// <param name="apiKey">your Enzoic API key</param>
+        /// <param name="apiSecret">your Enzoic API secret</param>
+        public Enzoic(string apiKey, string apiSecret, string apiBaseURL = "https://api.enzoic.com/v1")
         {
             if (String.IsNullOrEmpty(apiKey))
                 throw new ArgumentException("API Key cannot be null or empty");
@@ -46,8 +46,8 @@ namespace PasswordPingClient
         }
 
         /// <summary>
-        /// Checks whether the provided password is in the PasswordPing database of known, compromised passwords.
-        /// @see <a href="https://www.passwordping.com/docs/passwords-api">https://www.passwordping.com/docs/passwords-api</a>
+        /// Checks whether the provided password is in the Enzoic database of known, compromised passwords.
+        /// @see <a href="https://www.enzoic.com/docs/passwords-api">https://www.enzoic.com/docs/passwords-api</a>
         /// </summary>
         /// <param name="password">The password to be checked</param>
         /// <returns>True if the password is a known, compromised password and should not be used</returns>
@@ -60,8 +60,8 @@ namespace PasswordPingClient
         }
 
         /// <summary>
-        /// Checks whether the provided password is in the PasswordPing database of known, compromised passwords.
-        /// @see <a href="https://www.passwordping.com/docs/passwords-api">https://www.passwordping.com/docs/passwords-api</a>
+        /// Checks whether the provided password is in the Enzoic database of known, compromised passwords.
+        /// @see <a href="https://www.enzoic.com/docs/passwords-api">https://www.enzoic.com/docs/passwords-api</a>
         /// </summary>
         /// <param name="password">The password to be checked</param>
         /// <param name="revealedInExposure">Out parameter.  Whether the password was exposed in a known data Exposure. If this value 
@@ -69,8 +69,8 @@ namespace PasswordPingClient
         /// password in a data breach or other Exposure.</param>
         /// <param name="relativeExposureFrequency">This is a gauge of how frequently the password has been seen in data breaches. 
         /// The value is simply the percent of data 
-        /// breaches indexed by PasswordPing that have contained at least one instance of this password, i.e. if the value is 13, 
-        /// that means 13% of the exposures that PasswordPing has indexed contained this password at least one time. This value can 
+        /// breaches indexed by Enzoic that have contained at least one instance of this password, i.e. if the value is 13, 
+        /// that means 13% of the exposures that Enzoic has indexed contained this password at least one time. This value can 
         /// be used to gauge how dangerous this password is by how common it is.</param>
         /// <returns>True if the password is a known, compromised password and should not be used</returns>
         public bool CheckPassword(string password, out bool revealedInExposure, out int? relativeExposureFrequency)
@@ -109,16 +109,16 @@ namespace PasswordPingClient
         }
 
         /// <summary>
-        /// Calls the PasswordPing CheckCredentials API in a secure fashion to check whether the provided username and password
+        /// Calls the Enzoic CheckCredentials API in a secure fashion to check whether the provided username and password
         /// are known to be compromised.
         /// This call is made securely to the server - only a salted and hashed representation of the credentials are passed and
         /// the salt value is not passed along with it.
-        /// @see <a href="https://www.passwordping.com/docs/credentials-api">https://www.passwordping.com/docs/credentials-api</a>
+        /// @see <a href="https://www.enzoic.com/docs/credentials-api">https://www.enzoic.com/docs/credentials-api</a>
         /// </summary>
         /// <param name="username">the username to check - may be an email address or username</param>
         /// <param name="password">the password to check</param>
         /// <param name="lastCheckDate">(Optional) The timestamp for the last check you performed for this user.  If the date/time you provide 
-        /// for the last check is greater than the timestamp PasswordPing has for the last breach affecting this user, the check will 
+        /// for the last check is greater than the timestamp Enzoic has for the last breach affecting this user, the check will 
         /// not be performed.This can be used to substantially increase performance.Can be set to null if no last check was performed 
         /// or the credentials have changed since.</param>
         /// <param name="excludeHashTypes">(Optional) An array of PasswordTypes to ignore when calculating hashes for the credentials check.  
@@ -206,7 +206,7 @@ namespace PasswordPingClient
 
         /// <summary>
         /// Returns all of the credentials Exposures that have been found for a given username.
-        /// @see <a href="https://www.passwordping.com/docs/exposures-api#get-exposures">https://www.passwordping.com/docs/exposures-api#get-exposures</a>
+        /// @see <a href="https://www.enzoic.com/docs/exposures-api#get-exposures">https://www.enzoic.com/docs/exposures-api#get-exposures</a>
         /// </summary>
         /// <param name="username">The username or email address of the user to check</param>
         /// <returns>The response contains an array of exposure IDs for this user.  These IDs can be used with the GetExposureDetails call to get additional information about each Exposure.</returns>
@@ -236,7 +236,7 @@ namespace PasswordPingClient
 
         /// <summary>
         /// Returns the detailed information for a credentials Exposure.
-        /// @see <a href="https://www.passwordping.com/docs/exposures-api#get-exposure-details">https://www.passwordping.com/docs/exposures-api#get-exposure-details</a>
+        /// @see <a href="https://www.enzoic.com/docs/exposures-api#get-exposure-details">https://www.enzoic.com/docs/exposures-api#get-exposure-details</a>
         /// </summary>
         /// <param name="exposureID">The ID of the Exposure</param>
         /// <returns>The response body contains the details of the Exposure or null if the Exposure ID could not be found.</returns>

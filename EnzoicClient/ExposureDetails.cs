@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PasswordPingClient
+namespace EnzoicClient
 {
     /// <summary>
     /// The detailed information about a given credentials Exposure.  
@@ -51,7 +51,7 @@ namespace PasswordPingClient
         public String[] ExposedData { get; set; }
 
         /// <summary>
-        /// The date the Exposure was found and added to the PasswordPing database.
+        /// The date the Exposure was found and added to the Enzoic database.
         /// </summary>
         public DateTime? DateAdded { get; set; }
 

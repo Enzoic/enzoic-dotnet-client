@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PasswordPingClient
+namespace EnzoicClient
 {
     /// <summary>
-    /// Response object for the PasswordPing.GetExposuresForUser method
+    /// Response object for the Enzoic.GetExposuresForUser method
     /// </summary>
     public class ExposuresResponse
     {

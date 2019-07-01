@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PasswordPingClient.Enums;
+using EnzoicClient.Enums;
 
-namespace PasswordPingClient.DTOs
+namespace EnzoicClient.DTOs
 { 
     /// <summary>
     /// Specifications for a specific password hash - used internally by the Accounts API call

@@ -7,8 +7,8 @@
     <ProjectGuid>{3CBF765B-7046-4975-809F-0474C2E202D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PasswordPingClientTest</RootNamespace>
-    <AssemblyName>PasswordPingClientTest</AssemblyName>
+    <RootNamespace>EnzoicClientTest</RootNamespace>
+    <AssemblyName>EnzoicClientTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -49,14 +49,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnzoicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PasswordPingTests.cs" />
     <Compile Include="Utilities\HashingTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PasswordPingClient\PasswordPingClient.csproj">
+    <ProjectReference Include="..\EnzoicClient\EnzoicClient.csproj">
       <Project>{3c426a6c-4b8e-4802-a4db-6446a15eaacc}</Project>
-      <Name>PasswordPingClient</Name>
+      <Name>EnzoicClient</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

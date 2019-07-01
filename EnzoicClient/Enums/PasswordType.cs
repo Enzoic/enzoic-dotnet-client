@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PasswordPingClient.Enums
+namespace EnzoicClient.Enums
 {
     /**
      * Specifies a hash algorithm for a password 
