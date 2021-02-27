@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PasswordPingClientLibrary")]
-[assembly: AssemblyDescription("Client library for the PasswordPing API")]
+[assembly: AssemblyTitle("EnzoicClientLibrary")]
+[assembly: AssemblyDescription("Client library for the Enzoic API")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("PasswordPing Ltd.")]
-[assembly: AssemblyProduct("PasswordPingClientLibrary")]
+[assembly: AssemblyCompany("Enzoic")]
+[assembly: AssemblyProduct("EnzoicClientLibrary")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

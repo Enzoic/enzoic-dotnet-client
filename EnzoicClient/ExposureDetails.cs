@@ -24,7 +24,7 @@ namespace EnzoicClient
         /// <summary>
         /// The number of credentials found in the exposure
         /// </summary>
-        public int Entries { get; set; }
+        public long Entries { get; set; }
 
         /// <summary>
         /// The date the exposure occurred, as much as is known. The value is as follows:
