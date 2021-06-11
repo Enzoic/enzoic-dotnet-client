@@ -77,7 +77,18 @@ namespace EnzoicClient.Utilities
                     return salt + CalcSHA1(salt + password); // salt is prepended to hash
                 case PasswordType.RunCMS_SMF1_1:
                     return CalcSHA1(salt + password); // salt is username
-
+                case PasswordType.NTLM:
+                    return CalcNTLM(password);
+                case PasswordType.SHA1Dash:
+                    return CalcSHA1Dash(password, salt);
+                case PasswordType.SHA384:
+                    return CalcSHA384(password);
+                case PasswordType.CustomAlgorithm7:
+                    return CalcCustomAlgorithm7(password, salt);
+                case PasswordType.CustomAlgorithm8:
+                    return CalcCustomAlgorithm8(password, salt);
+                case PasswordType.CustomAlgorithm9:
+                    return CalcCustomAlgorithm9(password, salt);
                 default:
                     throw new Exception("Unsupported PasswordType in PasswordHashCalc");
             }
@@ -231,6 +242,52 @@ namespace EnzoicClient.Utilities
         public static string CalcDjangoSHA1(string password, string salt)
         {
             return "sha1$" + salt + "$" + CalcSHA1(salt + password);
+        }
+
+        public static string CalcNTLM(string password)
+        {
+            MD4Digest digest = new MD4Digest();
+            byte[] bytes = Encoding.Unicode.GetBytes(password);
+            digest.BlockUpdate(bytes, 0, bytes.Length);
+            byte[] NTLMOut = new byte[16];
+            digest.DoFinal(NTLMOut, 0);
+
+            return ToHexString(NTLMOut);
+        }
+
+        public static string CalcSHA1Dash(string password, string salt)
+        {
+            return CalcSHA1("--" + salt + "--" + password + "--");
+        }
+
+        public static string CalcSHA384(string password)
+        {
+            using (SHA384Managed sha384 = new SHA384Managed())
+                return ToHexString(sha384.ComputeHash(Encoding.UTF8.GetBytes(password)));
+        }
+
+        public static string CalcCustomAlgorithm7(string password, string salt)
+        {
+            string derivedSalt = CalcSHA1(salt);
+
+            HMACSHA256 hmac = new HMACSHA256(Encoding.UTF8.GetBytes("d2e1a4c569e7018cc142e9cce755a964bd9b193d2d31f02d80bb589c959afd7e"));
+            return ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes(derivedSalt + password)));
+        }
+
+        public static string CalcCustomAlgorithm8(string password, string salt)
+        {
+            return CalcSHA256(salt + password);
+        }
+
+        public static string CalcCustomAlgorithm9(string password, string salt)
+        {
+            string result = CalcSHA512(password + salt);
+            for (int i = 0; i < 11; i++)
+            {
+                result = CalcSHA512(result);
+            }
+
+            return result;
         }
 
         public static string CalcArgon2(string password, string salt)

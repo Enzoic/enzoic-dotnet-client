@@ -40,6 +40,12 @@ namespace EnzoicClientTest.Utilities
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PartialMD5_29, "password"), "5f4dcc3b5aa765d61d8327deb882c");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.PliggCMS, "password", "123"), "1230de084f38ace8e3d82597f55cc6ad5d6001568e6");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.RunCMS_SMF1_1, "password", "123"), "0de084f38ace8e3d82597f55cc6ad5d6001568e6");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.NTLM, "123456"), "32ed87bdb5fdc5e9cba88547376818d4");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA1Dash, "123456", "478c8029d5efddc554bf2fe6bb2219d8c897d4a0"), "55566a759b86fbbd979b579b232f4dd214d08068");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA384, "123456"), "0a989ebc4a77b56a6e2bb7b19d995d185ce44090c13e2984b7ecc6d446d4b61ea9991b76a4c2f04b1b4d244841449454");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm7, "123456", "123456"), "a753d386613efd6d4a534cec97e73890f8ec960fe6634db6dbfb9b2aab207982");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm8, "matthew", "Dn"), "9fc389447b7eb88aff45a1069bf89fbeff89b8fb7d11a6f450583fa4c9c70503");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm9, "0rangepeel", "6kpcxVSjagLgsNCUCr-D"), "07c691fa8b022b52ac1c44cab3e056b344a7945b6eb9db727e3842b28d94fe18c17fe5b47b1b9a29d8149acbd7b3f73866cc12f0a8a8b7ab4ac9470885e052dc");
         }
 
         [TestMethod]

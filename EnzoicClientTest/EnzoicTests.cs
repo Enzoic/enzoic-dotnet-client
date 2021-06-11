@@ -92,8 +92,8 @@ namespace EnzoicClientTest
             Assert.AreEqual(634661568000000000L, result.Date.Value.Ticks);
             Assert.AreEqual("MD5", result.PasswordType);
             CollectionAssert.AreEqual(new String[] { "Emails", "Passwords", "Usernames", "Website Activity" }, result.ExposedData);
-            Assert.AreEqual(43570999, result.Entries);
-            Assert.AreEqual(1218513, result.DomainsAffected);
+            Assert.AreEqual(81967007, result.Entries);
+            Assert.AreEqual(1219053, result.DomainsAffected);
         }
 
         [TestMethod]

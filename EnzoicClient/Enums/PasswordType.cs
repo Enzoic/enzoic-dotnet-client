@@ -44,6 +44,12 @@ namespace EnzoicClient.Enums
         PartialMD5_29 = 30,
         PliggCMS = 31,
         RunCMS_SMF1_1 = 32,
+        NTLM = 33,
+        SHA1Dash = 34, 
+        SHA384 = 35,
+        CustomAlgorithm7 = 36, 
+        CustomAlgorithm8 = 37, 
+        CustomAlgorithm9 = 38, 
         Unknown = 97,
         UnusablePassword = 98,
         None = 99
