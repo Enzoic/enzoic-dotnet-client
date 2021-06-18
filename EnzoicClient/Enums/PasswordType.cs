@@ -50,6 +50,8 @@ namespace EnzoicClient.Enums
         CustomAlgorithm7 = 36, 
         CustomAlgorithm8 = 37, 
         CustomAlgorithm9 = 38, 
+        SHA512Crypt = 39,
+        CustomAlgorithm10 = 40,
         Unknown = 97,
         UnusablePassword = 98,
         None = 99

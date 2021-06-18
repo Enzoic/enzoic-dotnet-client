@@ -5,6 +5,7 @@ using Org.BouncyCastle.Crypto.Digests;
 using System.Data.HashFunction.CRCStandards;
 using EnzoicClient.Enums;
 using Liphsoft.Crypto.Argon2;
+using CryptSharp;
 
 namespace EnzoicClient.Utilities
 {
@@ -89,6 +90,10 @@ namespace EnzoicClient.Utilities
                     return CalcCustomAlgorithm8(password, salt);
                 case PasswordType.CustomAlgorithm9:
                     return CalcCustomAlgorithm9(password, salt);
+                case PasswordType.SHA512Crypt:
+                    return CalcSHA512Crypt(password, salt);
+                case PasswordType.CustomAlgorithm10:
+                    return CalcCustomAlgorithm10(password, salt);
                 default:
                     throw new Exception("Unsupported PasswordType in PasswordHashCalc");
             }
@@ -288,6 +293,16 @@ namespace EnzoicClient.Utilities
             }
 
             return result;
+        }
+
+        public static string CalcSHA512Crypt(string password, string salt)
+        {
+            return Sha512Crypter.Sha512.Crypt(Encoding.UTF8.GetBytes(password), salt);
+        }
+
+        public static string CalcCustomAlgorithm10(string password, string salt)
+        {
+            return CalcSHA512(password + ":" + salt);
         }
 
         public static string CalcArgon2(string password, string salt)
