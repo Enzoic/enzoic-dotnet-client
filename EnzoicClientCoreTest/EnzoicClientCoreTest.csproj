@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EnzoicClientCore\EnzoicClientCore.csproj" />
+      <ProjectReference Include="..\EnzoicClientStandard\EnzoicClientStandard.csproj" />
     </ItemGroup>
 
 </Project>

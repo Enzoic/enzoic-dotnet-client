@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClient", "EnzoicClient\EnzoicClient.csproj", "{3C426A6C-4B8E-4802-A4DB-6446A15EAACC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientTest", "EnzoicClientTest\EnzoicClientTest.csproj", "{3CBF765B-7046-4975-809F-0474C2E202D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientTest", "EnzoicClientFrameworkTest\EnzoicClientFrameworkTest.csproj", "{3CBF765B-7046-4975-809F-0474C2E202D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientCore", "EnzoicClientCore\EnzoicClientCore.csproj", "{5A9185D4-F89A-416C-97C1-5482044D7472}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientCore", "EnzoicClientStandard\EnzoicClientStandard.csproj", "{5A9185D4-F89A-416C-97C1-5482044D7472}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientCoreTest", "EnzoicClientCoreTest\EnzoicClientCoreTest.csproj", "{28932EFD-DCE5-4418-BAE4-E5F45D840CC9}"
 EndProject
