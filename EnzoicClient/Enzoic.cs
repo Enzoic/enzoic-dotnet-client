@@ -257,6 +257,7 @@ namespace EnzoicClient
 
         private string MakeRestCall(string url, string method, string body)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             WebClient client = new WebClient();
 
             client.Headers["authorization"] = this.authString;

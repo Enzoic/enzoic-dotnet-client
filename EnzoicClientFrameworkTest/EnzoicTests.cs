@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EnzoicClient;
 using EnzoicClient.Enums;
 
-namespace EnzoicClientTest
+namespace EnzoicClientFrameworkTest
 {
     /// <summary>
     /// These are actually live tests and require a valid API key and Secret to be set in your environment variables.
@@ -27,9 +27,6 @@ namespace EnzoicClientTest
         [TestMethod]
         public void TestCheckCredentials()
         {
-            Environment.SetEnvironmentVariable("PP_API_KEY", "d7f84daff45045e080e62e8f7eb6a9c7");
-            Environment.SetEnvironmentVariable("PP_API_SECRET", "=UuTmZEDrW6c8XBkTZyrZ94NHt1p3pk*");
-
             Enzoic enzoic = GetEnzoic();
 
             bool exposed = enzoic.CheckCredentials("test@passwordping.com", "123456");
@@ -54,9 +51,6 @@ namespace EnzoicClientTest
         [TestMethod]
         public void TestGetExposuresForUser()
         {
-            Environment.SetEnvironmentVariable("PP_API_KEY", "d7f84daff45045e080e62e8f7eb6a9c7");
-            Environment.SetEnvironmentVariable("PP_API_SECRET", "=UuTmZEDrW6c8XBkTZyrZ94NHt1p3pk*");
-
             Enzoic enzoic = GetEnzoic();
 
             // test bad value
@@ -83,9 +77,6 @@ namespace EnzoicClientTest
         [TestMethod]
         public void TestGetExposureDetails()
         {
-            Environment.SetEnvironmentVariable("PP_API_KEY", "d7f84daff45045e080e62e8f7eb6a9c7");
-            Environment.SetEnvironmentVariable("PP_API_SECRET", "=UuTmZEDrW6c8XBkTZyrZ94NHt1p3pk*");
-
             Enzoic enzoic = GetEnzoic();
 
             // test bad value
@@ -108,9 +99,6 @@ namespace EnzoicClientTest
         [TestMethod]
         public void TestCheckPassword()
         {
-            Environment.SetEnvironmentVariable("PP_API_KEY", "d7f84daff45045e080e62e8f7eb6a9c7");
-            Environment.SetEnvironmentVariable("PP_API_SECRET", "=UuTmZEDrW6c8XBkTZyrZ94NHt1p3pk*");
-
             Enzoic enzoic = GetEnzoic();
 
             Assert.IsFalse(enzoic.CheckPassword("kjdlkjdlksjdlskjdlskjslkjdslkdjslkdjslkd"));
