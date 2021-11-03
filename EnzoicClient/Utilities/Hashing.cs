@@ -2,9 +2,9 @@
 using System.Text;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
-using System.Data.HashFunction.CRCStandards;
+using System.Data.HashFunction.CRC;
 using EnzoicClient.Enums;
-using Liphsoft.Crypto.Argon2;
+using Konscious.Security.Cryptography;
 using CryptSharp;
 
 namespace EnzoicClient.Utilities
@@ -15,7 +15,7 @@ namespace EnzoicClient.Utilities
         private static SHA256Managed sha2 = new SHA256Managed();
         private static SHA1Managed sha1 = new SHA1Managed();
         private static MD5 md5 = MD5.Create();
-        private static CRC32 crc32 = new CRC32();
+        private static ICRC crc32 = CRCFactory.Instance.Create();
 
         public static string CalcPasswordHash(PasswordType passwordType, string password, string salt = "")
         {
@@ -116,7 +116,7 @@ namespace EnzoicClient.Utilities
 
         public static string CalcCRC32(string password)
         {
-            return BitConverter.ToInt32(crc32.ComputeHash(Encoding.UTF8.GetBytes(password)), 0).ToString();
+            return BitConverter.ToInt32(crc32.ComputeHash(Encoding.UTF8.GetBytes(password)).Hash, 0).ToString();
         }
 
         public static string CalcPHPBB3(string password, string salt)
@@ -308,19 +308,22 @@ namespace EnzoicClient.Utilities
         public static string CalcArgon2(string password, string salt)
         {
             // defaults
-            uint iterations = 3;
-            uint memoryCost = 1024;
-            uint parallelism = 2;
-            uint hashLength = 20;
-            Argon2Type argonType = Argon2Type.Argon2d;
+            int iterations = 3;
+            int memoryCost = 1024;
+            int parallelism = 2;
+            int hashLength = 20;
             string justSalt = salt;
+
+            Argon2 argon2 = null;
 
             // check if salt has settings encoded in it
             if (salt.StartsWith("$argon2"))
             {
                 // apparently has settings encoded in it - use these
                 if (salt.StartsWith("$argon2i"))
-                    argonType = Argon2Type.Argon2i;
+                {
+                    argon2 = new Argon2i(Encoding.UTF8.GetBytes(password));
+                }
 
                 String[] saltComponents = salt.Split('$');
                 if (saltComponents.Length == 5)
@@ -335,19 +338,19 @@ namespace EnzoicClient.Utilities
                         switch (saltParamValues[0])
                         {
                             case "t":
-                                if (!uint.TryParse(saltParamValues[1], out iterations))
+                                if (!int.TryParse(saltParamValues[1], out iterations))
                                     iterations = 3;
                                 break;
                             case "m":
-                                if (!uint.TryParse(saltParamValues[1], out memoryCost))
+                                if (!int.TryParse(saltParamValues[1], out memoryCost))
                                     memoryCost = 1024;
                                 break;
                             case "p":
-                                if (!uint.TryParse(saltParamValues[1], out parallelism))
+                                if (!int.TryParse(saltParamValues[1], out parallelism))
                                     parallelism = 2;
                                 break;
                             case "l":
-                                if (!uint.TryParse(saltParamValues[1], out hashLength))
+                                if (!int.TryParse(saltParamValues[1], out hashLength))
                                     hashLength = 20;
                                 break;
                         }
@@ -356,7 +359,17 @@ namespace EnzoicClient.Utilities
                 }
             }
 
-            return new PasswordHasher(iterations, memoryCost, parallelism, argonType, hashLength).Hash(password, justSalt);           
+            if (argon2 == null)
+                argon2 = new Argon2d(Encoding.UTF8.GetBytes(password));
+
+            argon2.DegreeOfParallelism = parallelism;
+            argon2.MemorySize = memoryCost;
+            argon2.Iterations = iterations;
+            argon2.Salt = Encoding.UTF8.GetBytes(justSalt);
+
+            var bytes = argon2.GetBytes(hashLength);
+            var result = BitConverter.ToString(bytes).Replace("-", "").ToLower();
+            return result;
         }
 
         public static byte[] exclusiveOR(byte[] one, byte[] two)

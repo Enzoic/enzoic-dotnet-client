@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.10
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClient", "EnzoicClient\EnzoicClient.csproj", "{3C426A6C-4B8E-4802-A4DB-6446A15EAACC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnzoicClient", "EnzoicClient\EnzoicClient.csproj", "{3C426A6C-4B8E-4802-A4DB-6446A15EAACC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnzoicClientTest", "EnzoicClientTest\EnzoicClientTest.csproj", "{3CBF765B-7046-4975-809F-0474C2E202D6}"
 EndProject

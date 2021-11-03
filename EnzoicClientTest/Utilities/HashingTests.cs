@@ -53,13 +53,11 @@ namespace EnzoicClientTest.Utilities
         [TestMethod]
         public void TestCalcArgon2()
         {
-            Assert.AreEqual("$argon2d$v=19$m=1024,t=3,p=2$c2FsdHlzYWx0$EklGIPtCSWb3IS+q4IQ7rwrwm2o", Hashing.CalcArgon2("123456", "saltysalt"));
-            Assert.AreEqual("$argon2d$v=19$m=1024,t=3,p=2$c2FsdHlzYWx0$EklGIPtCSWb3IS+q4IQ7rwrwm2o", Hashing.CalcArgon2("123456", "$argon2d$v=19$m=1024,t=3,p=2,l=20$c2FsdHlzYWx0"));
-            Assert.AreEqual("$argon2i$v=19$m=1024,t=2,p=2$c29tZXNhbHQ$bBKumUNszaveOgEhcaWl6r6Y91Y", Hashing.CalcArgon2("password", "$argon2i$v=19$m=1024,t=2,p=2,l=20$c29tZXNhbHQ"));
-            Assert.AreEqual("$argon2i$v=19$m=4096,t=2,p=4$c29tZXNhbHQ$M2X6yo+ZZ8ROwC7MB6/+1yMhGytTzDczBMgo3Is7ptY", Hashing.CalcArgon2("password", "$argon2i$v=19$m=4096,t=2,p=4,l=32$c29tZXNhbHQ"));
-            Assert.AreEqual("$argon2i$v=19$m=4096,t=2,p=4$c29tZXNhbHQ$ZPidoNOWM3jRl0AD+3mGdZsq+GvHprGL", Hashing.CalcArgon2("password", "$argon2i$v=19$m=4096,t=2,p=4,l=24$c29tZXNhbHQ"));
-
-            Assert.AreEqual("$argon2d$v=19$m=1024,t=3,p=2$c2FsdHlzYWx0$EklGIPtCSWb3IS+q4IQ7rwrwm2o", Hashing.CalcArgon2("123456", "$argon2d$v=19$m=10d4,t=ejw,p=2$c2FsdHlzYWx0"));
-        }
+            Assert.AreEqual("12494620fb424966f7212faae0843baf0af09b6a", Hashing.CalcArgon2("123456", "saltysalt"));
+            Assert.AreEqual("0922b87d3e71f10030b49c8ce721e6b226b935ab", Hashing.CalcArgon2("enz_eicar2$49efef5f70d47adc2db2eb397fbef5f7bc560e29", "k8=3W_hux:Tn{U}q!-CQxY+N(Z9PFe#Z"));
+            Assert.AreEqual("38f7e43187a8d1ac386007f88c91a763dd983e31", Hashing.CalcArgon2("eicar_1@enzoic.com$e10adc3949ba59abbe56e057f20f883e", "r:sNmYdWHp+]wO.6?24xAqX:U|eo[6RF"));
+            Assert.AreEqual("38f7e43187a8d1ac386007f88c91a763dd983e31", Hashing.CalcArgon2("eicar_1@enzoic.com$e10adc3949ba59abbe56e057f20f883e", "r:sNmYdWHp+]wO.6?24xAqX:U|eo[6RF"));
+            Assert.AreEqual("f5305dcb130e3e8bb489acf041e6162ad6715616", Hashing.CalcArgon2("eicar_2@enzoic.com$7c4a8d09ca3762af61e59520943dc26494f8941b", "}Z/LG_*.Hc!R)(Ho-q@rJ42yLaAP}Zb}"));
+        }    
     }
 }

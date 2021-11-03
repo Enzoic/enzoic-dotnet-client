@@ -257,8 +257,9 @@ namespace EnzoicClient
 
         private string MakeRestCall(string url, string method, string body)
         {
-            WebClient client = new WebClient();
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
+            WebClient client = new WebClient();
             client.Headers["authorization"] = this.authString;
 
             try
@@ -295,9 +296,7 @@ namespace EnzoicClient
             {
                 String argon2Hash = Hashing.CalcArgon2(username + "$" + passwordHash, salt);
 
-                String justHash = argon2Hash.Substring(argon2Hash.LastIndexOf('$') + 1);
-
-                return Hashing.ToHexString(Hashing.DecodeBase64(justHash));
+                return argon2Hash.Substring(argon2Hash.LastIndexOf('$') + 1);
             }
             else
             {
