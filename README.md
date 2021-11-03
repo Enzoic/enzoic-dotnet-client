@@ -1,17 +1,29 @@
 # Enzoic .NET Client Library
 
+Enzoic has a series of simple hosted REST APIs which allow you to harness the power of our massive database of compromised credentials and accounts for integration into your application or website.  You can use our service to screen your users' or employees' passwords and credentials against our system to determine if they are known to be compromised.  This client library for .NET makes integrating the API into your existing .NET application simple.
+
+The service is free to start.  Get an API key at https://www.enzoic.com/
+
 ## TOC
 
 This README covers the following topics:
 
+- [Supported Platforms](#supported-platforms)
 - [Installation](#installation)
 - [API Overview](#api-overview)
 - [The Enzoic constructor](#the-enzoic-constructor)
-- [JavaDocs](#javadocs)
+- [License](#license)
+
+## Supported Platforms
+
+- .NET Standard 2.0
+- .NET 4.5
+- .NET 4.6.1
+- .NET 4.7.2
 
 ## Installation
 
-The compiled library is available from NuGet:
+The compiled library is available as a package from NuGet:
 
 ### Nuget
 

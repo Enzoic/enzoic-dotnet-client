@@ -6,7 +6,7 @@
     <Authors>Enzoic</Authors>
     <Company>Enzoic</Company>
     <Product>EnzoicClientLibrary</Product>
-    <PackageId>EnzoicClient</PackageId>
+    <PackageId>Enzoic</PackageId>
     <Copyright>Copyright 2017-2021</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/enzoic/enzoic-dotnet-client</PackageProjectUrl>
