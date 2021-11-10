@@ -46,6 +46,16 @@ namespace EnzoicClientTest
 
             exposed = enzoic.CheckCredentials("testpwdpng445", "testpwdpng4452", new DateTime(2018, 3, 1), null);
             Assert.IsFalse(exposed);
+            
+            // test using Raw Credentials version of the API, if enabled
+            if (GetRawCredentialsAPIEnabled())
+            {
+                exposed = enzoic.CheckCredentials("test@passwordping.com", "123456", null, null, true);
+                Assert.IsTrue(exposed);
+
+                exposed = enzoic.CheckCredentials("test@passwordping.com", "notvalid", null, null, true);
+                Assert.IsFalse(exposed);
+            }
         }
 
         [TestMethod]
@@ -152,6 +162,13 @@ namespace EnzoicClientTest
         {
             // set these env vars to run live tests
             return Environment.GetEnvironmentVariable("PP_API_SECRET");
+        }
+
+        private bool GetRawCredentialsAPIEnabled()
+        {
+            // set these env vars to run live tests
+            // this var controls whether Raw Credentials API is enabled for the account used for testing
+            return Environment.GetEnvironmentVariable("PP_API_RAW_CREDS_API_ENABLED") == "true";
         }
     }
 }

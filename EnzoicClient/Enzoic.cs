@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -80,11 +79,11 @@ namespace EnzoicClient
             string sha256 = Hashing.CalcSHA256(password);
 
             String response = MakeRestCall(
-                    apiBaseURL + PASSWORDS_API_PATH +
-                        "?partial_md5=" + md5.Substring(0, 10) +
-                        "&partial_sha1=" + sha1.Substring(0, 10) +
-                        "&partial_sha256=" + sha256.Substring(0, 10),
-                    "GET", null);
+                apiBaseURL + PASSWORDS_API_PATH +
+                "?partial_md5=" + md5.Substring(0, 10) +
+                "&partial_sha1=" + sha1.Substring(0, 10) +
+                "&partial_sha256=" + sha256.Substring(0, 10),
+                "GET", null);
 
             if (response != "404")
             {
@@ -125,13 +124,22 @@ namespace EnzoicClient
         /// By excluding computationally expensive PasswordTypes, such as BCrypt, it is possible to balance the performance of this 
         /// call against security.Can be set to null if you don't wish to exclude any hash types.</param>
         /// <returns>true if the credentials are known to be compromised, false otherwise</returns>
-        public bool CheckCredentials(string username, string password, DateTime? lastCheckDate = null, 
-            PasswordType[] excludeHashTypes = null)
+        /// <param name="useRawCredentials">(Optional) Pass true in for this parameter to use the Raw Credentials
+        /// variant of the Credentials API.  The Raw Credentials version of the Credentials API allows you to
+        /// check usernames and passwords for compromise without passing even a hashed version to Enzoic.
+        /// This works be pulling down all of the Credentials Hashes Enzoic has for a given username and
+        /// calculating/comparing locally.  The only thing that gets passed to Enzoic in this case is a hash of
+        /// the username.  Raw Credentials requires a separate approval to unlock.  If you're interested in getting
+        /// approved, please contact us through our website.</param>
+        /// <returns>true if the credentials are known to be compromised, false otherwise</returns>/// 
+        public bool CheckCredentials(string username, string password, DateTime? lastCheckDate = null,
+            PasswordType[] excludeHashTypes = null, bool useRawCredentials = false)
         {
             String response = MakeRestCall(
-                    apiBaseURL + ACCOUNTS_API_PATH + "?username=" +
-                            WebUtility.UrlEncode(Hashing.CalcSHA256(username)),
-                    "GET", null);
+                apiBaseURL + ACCOUNTS_API_PATH + "?username=" +
+                WebUtility.UrlEncode(Hashing.CalcSHA256(username)) +
+                (useRawCredentials ? "&includeHashes=1" : ""),
+                "GET", null);
 
             if (response == "404")
             {
@@ -148,56 +156,90 @@ namespace EnzoicClient
                 return false;
             }
 
-            int bcryptCount = 0;
-
-            List<string> credentialHashes = new List<string>();
-            StringBuilder queryString = new StringBuilder();
-            foreach (PasswordHashSpecification hashSpec in accountsResponse.PasswordHashesRequired)
+            if (accountsResponse.CredentialsHashes != null)
             {
-                if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
+                int bcryptCount = 0;
+                foreach (CredentialsHashSpecification credHashSpec in accountsResponse.CredentialsHashes)
                 {
-                    // this type is excluded
-                    continue;
-                }
-
-                // bcrypt gets far too expensive for good response time if there are many of them to calculate.
-                // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
-                // kills performance, so short circuit out after at most 2 BCrypt hashes
-                if (hashSpec.HashType != PasswordType.BCrypt || bcryptCount <= 2)
-                {
-                    if (hashSpec.HashType == PasswordType.BCrypt) bcryptCount++;
-
-                    String credentialHash = CalcCredentialHash(username, password, accountsResponse.Salt, hashSpec);
-
-                    if (credentialHash != null)
+                    PasswordHashSpecification hashSpec = new PasswordHashSpecification
                     {
-                        credentialHashes.Add(credentialHash);
-                        if (queryString.Length == 0)
-                            queryString.Append("?partialHashes=").Append(credentialHash.Substring(0, 10));
-                        else
-                            queryString.Append("&partialHashes=").Append(credentialHash.Substring(0, 10));
+                        Salt = credHashSpec.Salt,
+                        HashType = credHashSpec.HashType
+                    };
+                    if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
+                    {
+                        // this type is excluded
+                        continue;
+                    }
+
+                    // bcrypt gets far too expensive for good response time if there are many of them to calculate.
+                    // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
+                    // kills performance, so short circuit out after at most 2 BCrypt hashes
+                    if (hashSpec.HashType != PasswordType.BCrypt || bcryptCount <= 2)
+                    {
+                        if (hashSpec.HashType == PasswordType.BCrypt) bcryptCount++;
+                        String credentialHash = CalcCredentialHash(username, password, accountsResponse.Salt, hashSpec);
+
+                        if (credentialHash != null)
+                        {
+                            if (credentialHash == credHashSpec.CredentialsHash)
+                                return true;
+                        }
                     }
                 }
             }
-
-            if (queryString.Length > 0)
+            else if (accountsResponse.PasswordHashesRequired != null)
             {
-                String credsResponse = MakeRestCall(
-                        apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
+                int bcryptCount = 0;
 
-                if (credsResponse != "404")
+                List<string> credentialHashes = new List<string>();
+                StringBuilder queryString = new StringBuilder();
+                foreach (PasswordHashSpecification hashSpec in accountsResponse.PasswordHashesRequired)
                 {
-                    // loop through candidate hashes returned and see if we have a match with the exact hash
-                    dynamic responseObj = JObject.Parse(credsResponse);
-
-                    foreach (dynamic candidate in responseObj.candidateHashes)
+                    if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
                     {
-                        if (credentialHashes.FirstOrDefault(hash => hash == candidate.ToString()) != null)
-                        {
-                            return true;
-                        }
+                        // this type is excluded
+                        continue;
                     }
 
+                    // bcrypt gets far too expensive for good response time if there are many of them to calculate.
+                    // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
+                    // kills performance, so short circuit out after at most 2 BCrypt hashes
+                    if (hashSpec.HashType != PasswordType.BCrypt || bcryptCount <= 2)
+                    {
+                        if (hashSpec.HashType == PasswordType.BCrypt) bcryptCount++;
+
+                        String credentialHash = CalcCredentialHash(username, password, accountsResponse.Salt, hashSpec);
+
+                        if (credentialHash != null)
+                        {
+                            credentialHashes.Add(credentialHash);
+                            if (queryString.Length == 0)
+                                queryString.Append("?partialHashes=").Append(credentialHash.Substring(0, 10));
+                            else
+                                queryString.Append("&partialHashes=").Append(credentialHash.Substring(0, 10));
+                        }
+                    }
+                }
+
+                if (queryString.Length > 0)
+                {
+                    String credsResponse = MakeRestCall(
+                        apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
+
+                    if (credsResponse != "404")
+                    {
+                        // loop through candidate hashes returned and see if we have a match with the exact hash
+                        dynamic responseObj = JObject.Parse(credsResponse);
+
+                        foreach (dynamic candidate in responseObj.candidateHashes)
+                        {
+                            if (credentialHashes.FirstOrDefault(hash => hash == candidate.ToString()) != null)
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -214,7 +256,9 @@ namespace EnzoicClient
         {
             ExposuresResponse result;
 
-            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?username=" + WebUtility.UrlEncode(username), "GET", null);
+            String response =
+                MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?username=" + WebUtility.UrlEncode(username), "GET",
+                    null);
 
             if (response == "404")
             {
@@ -244,7 +288,8 @@ namespace EnzoicClient
         {
             ExposureDetails result = null;
 
-            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?id=" + WebUtility.UrlEncode(exposureID), "GET", null);
+            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?id=" + WebUtility.UrlEncode(exposureID),
+                "GET", null);
 
             if (response != "404")
             {
@@ -259,36 +304,39 @@ namespace EnzoicClient
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-            WebClient client = new WebClient();
-            client.Headers["authorization"] = this.authString;
+            using (WebClient client = new WebClient())
+            {
+                client.Headers["authorization"] = this.authString;
 
-            try
-            {
-                if (method == "POST" || method == "PUT")
+                try
                 {
-                    return client.UploadString(url, body);
+                    if (method == "POST" || method == "PUT")
+                    {
+                        return client.UploadString(url, body);
+                    }
+                    else
+                    {
+                        return client.DownloadString(url);
+                    }
                 }
-                else
+                catch (WebException ex)
                 {
-                    return client.DownloadString(url);
-                }
-            }
-            catch (WebException ex)
-            {
-                if (ex.Response != null && 
-                    ex.Response.GetType().IsAssignableFrom(typeof(HttpWebResponse)) && 
-                    ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
-                {
-                    return "404";
-                }
-                else
-                {
-                    throw;
+                    if (ex.Response != null &&
+                        ex.Response.GetType().IsAssignableFrom(typeof(HttpWebResponse)) &&
+                        ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return "404";
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
 
-        private String CalcCredentialHash(String username, String password, String salt, PasswordHashSpecification specification)
+        private String CalcCredentialHash(String username, String password, String salt,
+            PasswordHashSpecification specification)
         {
             String passwordHash = Hashing.CalcPasswordHash(specification.HashType, password, specification.Salt);
 
