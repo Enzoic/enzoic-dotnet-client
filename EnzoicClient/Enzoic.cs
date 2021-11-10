@@ -79,11 +79,11 @@ namespace EnzoicClient
             string sha256 = Hashing.CalcSHA256(password);
 
             String response = MakeRestCall(
-                    apiBaseURL + PASSWORDS_API_PATH +
-                        "?partial_md5=" + md5.Substring(0, 10) +
-                        "&partial_sha1=" + sha1.Substring(0, 10) +
-                        "&partial_sha256=" + sha256.Substring(0, 10),
-                    "GET", null);
+                apiBaseURL + PASSWORDS_API_PATH +
+                "?partial_md5=" + md5.Substring(0, 10) +
+                "&partial_sha1=" + sha1.Substring(0, 10) +
+                "&partial_sha256=" + sha256.Substring(0, 10),
+                "GET", null);
 
             if (response != "404")
             {
@@ -141,7 +141,7 @@ namespace EnzoicClient
                 (useRawCredentials ? "&includeHashes=1" : ""),
                 "GET", null);
 
-        if (response == "404")
+            if (response == "404")
             {
                 // this is all we needed to check for this - email wasn't even in the DB
                 return false;
@@ -182,14 +182,14 @@ namespace EnzoicClient
 
                         if (credentialHash != null)
                         {
-                            if (credentialHash == credHashSpec.CredentialsHash) 
+                            if (credentialHash == credHashSpec.CredentialsHash)
                                 return true;
                         }
                     }
                 }
             }
             else if (accountsResponse.PasswordHashesRequired != null)
-            { 
+            {
                 int bcryptCount = 0;
 
                 List<string> credentialHashes = new List<string>();
@@ -225,7 +225,7 @@ namespace EnzoicClient
                 if (queryString.Length > 0)
                 {
                     String credsResponse = MakeRestCall(
-                            apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
+                        apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
 
                     if (credsResponse != "404")
                     {
@@ -256,7 +256,9 @@ namespace EnzoicClient
         {
             ExposuresResponse result;
 
-            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?username=" + WebUtility.UrlEncode(username), "GET", null);
+            String response =
+                MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?username=" + WebUtility.UrlEncode(username), "GET",
+                    null);
 
             if (response == "404")
             {
@@ -286,7 +288,8 @@ namespace EnzoicClient
         {
             ExposureDetails result = null;
 
-            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?id=" + WebUtility.UrlEncode(exposureID), "GET", null);
+            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?id=" + WebUtility.UrlEncode(exposureID),
+                "GET", null);
 
             if (response != "404")
             {
@@ -318,8 +321,8 @@ namespace EnzoicClient
                 }
                 catch (WebException ex)
                 {
-                    if (ex.Response != null && 
-                        ex.Response.GetType().IsAssignableFrom(typeof(HttpWebResponse)) && 
+                    if (ex.Response != null &&
+                        ex.Response.GetType().IsAssignableFrom(typeof(HttpWebResponse)) &&
                         ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
                     {
                         return "404";
@@ -332,7 +335,8 @@ namespace EnzoicClient
             }
         }
 
-        private String CalcCredentialHash(String username, String password, String salt, PasswordHashSpecification specification)
+        private String CalcCredentialHash(String username, String password, String salt,
+            PasswordHashSpecification specification)
         {
             String passwordHash = Hashing.CalcPasswordHash(specification.HashType, password, specification.Salt);
 
