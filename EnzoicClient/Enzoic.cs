@@ -301,31 +301,33 @@ namespace EnzoicClient
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-            WebClient client = new WebClient();
-            client.Headers["authorization"] = this.authString;
+            using (WebClient client = new WebClient())
+            {
+                client.Headers["authorization"] = this.authString;
 
-            try
-            {
-                if (method == "POST" || method == "PUT")
+                try
                 {
-                    return client.UploadString(url, body);
+                    if (method == "POST" || method == "PUT")
+                    {
+                        return client.UploadString(url, body);
+                    }
+                    else
+                    {
+                        return client.DownloadString(url);
+                    }
                 }
-                else
+                catch (WebException ex)
                 {
-                    return client.DownloadString(url);
-                }
-            }
-            catch (WebException ex)
-            {
-                if (ex.Response != null && 
-                    ex.Response.GetType().IsAssignableFrom(typeof(HttpWebResponse)) && 
-                    ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
-                {
-                    return "404";
-                }
-                else
-                {
-                    throw;
+                    if (ex.Response != null && 
+                        ex.Response.GetType().IsAssignableFrom(typeof(HttpWebResponse)) && 
+                        ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return "404";
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
