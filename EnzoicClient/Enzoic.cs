@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -125,15 +124,24 @@ namespace EnzoicClient
         /// By excluding computationally expensive PasswordTypes, such as BCrypt, it is possible to balance the performance of this 
         /// call against security.Can be set to null if you don't wish to exclude any hash types.</param>
         /// <returns>true if the credentials are known to be compromised, false otherwise</returns>
-        public bool CheckCredentials(string username, string password, DateTime? lastCheckDate = null, 
-            PasswordType[] excludeHashTypes = null)
+        /// <param name="useRawCredentials">(Optional) Pass true in for this parameter to use the Raw Credentials
+        /// variant of the Credentials API.  The Raw Credentials version of the Credentials API allows you to
+        /// check usernames and passwords for compromise without passing even a hashed version to Enzoic.
+        /// This works be pulling down all of the Credentials Hashes Enzoic has for a given username and
+        /// calculating/comparing locally.  The only thing that gets passed to Enzoic in this case is a hash of
+        /// the username.  Raw Credentials requires a separate approval to unlock.  If you're interested in getting
+        /// approved, please contact us through our website.</param>
+        /// <returns>true if the credentials are known to be compromised, false otherwise</returns>/// 
+        public bool CheckCredentials(string username, string password, DateTime? lastCheckDate = null,
+            PasswordType[] excludeHashTypes = null, bool useRawCredentials = false)
         {
             String response = MakeRestCall(
-                    apiBaseURL + ACCOUNTS_API_PATH + "?username=" +
-                            WebUtility.UrlEncode(Hashing.CalcSHA256(username)),
-                    "GET", null);
+                apiBaseURL + ACCOUNTS_API_PATH + "?username=" +
+                WebUtility.UrlEncode(Hashing.CalcSHA256(username)) +
+                (useRawCredentials ? "&includeHashes=1" : ""),
+                "GET", null);
 
-            if (response == "404")
+        if (response == "404")
             {
                 // this is all we needed to check for this - email wasn't even in the DB
                 return false;
@@ -148,56 +156,90 @@ namespace EnzoicClient
                 return false;
             }
 
-            int bcryptCount = 0;
-
-            List<string> credentialHashes = new List<string>();
-            StringBuilder queryString = new StringBuilder();
-            foreach (PasswordHashSpecification hashSpec in accountsResponse.PasswordHashesRequired)
+            if (accountsResponse.CredentialsHashes != null)
             {
-                if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
+                int bcryptCount = 0;
+                foreach (CredentialsHashSpecification credHashSpec in accountsResponse.CredentialsHashes)
                 {
-                    // this type is excluded
-                    continue;
-                }
-
-                // bcrypt gets far too expensive for good response time if there are many of them to calculate.
-                // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
-                // kills performance, so short circuit out after at most 2 BCrypt hashes
-                if (hashSpec.HashType != PasswordType.BCrypt || bcryptCount <= 2)
-                {
-                    if (hashSpec.HashType == PasswordType.BCrypt) bcryptCount++;
-
-                    String credentialHash = CalcCredentialHash(username, password, accountsResponse.Salt, hashSpec);
-
-                    if (credentialHash != null)
+                    PasswordHashSpecification hashSpec = new PasswordHashSpecification
                     {
-                        credentialHashes.Add(credentialHash);
-                        if (queryString.Length == 0)
-                            queryString.Append("?partialHashes=").Append(credentialHash.Substring(0, 10));
-                        else
-                            queryString.Append("&partialHashes=").Append(credentialHash.Substring(0, 10));
+                        Salt = credHashSpec.Salt,
+                        HashType = credHashSpec.HashType
+                    };
+                    if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
+                    {
+                        // this type is excluded
+                        continue;
+                    }
+
+                    // bcrypt gets far too expensive for good response time if there are many of them to calculate.
+                    // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
+                    // kills performance, so short circuit out after at most 2 BCrypt hashes
+                    if (hashSpec.HashType != PasswordType.BCrypt || bcryptCount <= 2)
+                    {
+                        if (hashSpec.HashType == PasswordType.BCrypt) bcryptCount++;
+                        String credentialHash = CalcCredentialHash(username, password, accountsResponse.Salt, hashSpec);
+
+                        if (credentialHash != null)
+                        {
+                            if (credentialHash == credHashSpec.CredentialsHash) 
+                                return true;
+                        }
                     }
                 }
             }
+            else if (accountsResponse.PasswordHashesRequired != null)
+            { 
+                int bcryptCount = 0;
 
-            if (queryString.Length > 0)
-            {
-                String credsResponse = MakeRestCall(
-                        apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
-
-                if (credsResponse != "404")
+                List<string> credentialHashes = new List<string>();
+                StringBuilder queryString = new StringBuilder();
+                foreach (PasswordHashSpecification hashSpec in accountsResponse.PasswordHashesRequired)
                 {
-                    // loop through candidate hashes returned and see if we have a match with the exact hash
-                    dynamic responseObj = JObject.Parse(credsResponse);
-
-                    foreach (dynamic candidate in responseObj.candidateHashes)
+                    if (excludeHashTypes != null && excludeHashTypes.Contains(hashSpec.HashType))
                     {
-                        if (credentialHashes.FirstOrDefault(hash => hash == candidate.ToString()) != null)
-                        {
-                            return true;
-                        }
+                        // this type is excluded
+                        continue;
                     }
 
+                    // bcrypt gets far too expensive for good response time if there are many of them to calculate.
+                    // some mostly garbage accounts have accumulated a number of them in our DB and if we happen to hit one it
+                    // kills performance, so short circuit out after at most 2 BCrypt hashes
+                    if (hashSpec.HashType != PasswordType.BCrypt || bcryptCount <= 2)
+                    {
+                        if (hashSpec.HashType == PasswordType.BCrypt) bcryptCount++;
+
+                        String credentialHash = CalcCredentialHash(username, password, accountsResponse.Salt, hashSpec);
+
+                        if (credentialHash != null)
+                        {
+                            credentialHashes.Add(credentialHash);
+                            if (queryString.Length == 0)
+                                queryString.Append("?partialHashes=").Append(credentialHash.Substring(0, 10));
+                            else
+                                queryString.Append("&partialHashes=").Append(credentialHash.Substring(0, 10));
+                        }
+                    }
+                }
+
+                if (queryString.Length > 0)
+                {
+                    String credsResponse = MakeRestCall(
+                            apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
+
+                    if (credsResponse != "404")
+                    {
+                        // loop through candidate hashes returned and see if we have a match with the exact hash
+                        dynamic responseObj = JObject.Parse(credsResponse);
+
+                        foreach (dynamic candidate in responseObj.candidateHashes)
+                        {
+                            if (credentialHashes.FirstOrDefault(hash => hash == candidate.ToString()) != null)
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
 

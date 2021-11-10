@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EnzoicClient.DTOs
 {
@@ -20,6 +16,12 @@ namespace EnzoicClient.DTOs
         /// The list of password hashes required to be calculated when checking credentials for this account
         /// </summary>
         public PasswordHashSpecification[] PasswordHashesRequired { get; set; }
+        
+        /// <summary>
+        /// The list of credentials hashes and password hash specifications
+        /// </summary>
+        public CredentialsHashSpecification[] CredentialsHashes { get; set; }
+
 
         /// <summary>
         /// The date of the last breach affecting this user.  Can be used to determine if any new breached credentials have

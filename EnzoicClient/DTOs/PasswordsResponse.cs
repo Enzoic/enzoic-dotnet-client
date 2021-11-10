@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EnzoicClient.DTOs
+﻿namespace EnzoicClient.DTOs
 {
     /// <summary>
     /// Response object for Passwords API call - internal use only
