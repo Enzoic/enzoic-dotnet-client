@@ -3,7 +3,7 @@
   <metadata>
     <id>Enzoic</id>
 
-    <version>4.0.0.0</version>
+    <version>4.1.0.0</version>
 
     <authors>Enzoic</authors>
 
@@ -16,7 +16,7 @@
 
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
-    <releaseNotes>Multi-platform support for .NET 4.5 up to .NET Standard 2.0</releaseNotes>
+    <releaseNotes>Add useRawCredentials option to CheckCredentials call.  Fix a WebClient leak.</releaseNotes>
 
     <description>
       Enzoic client library for .NET.  Wraps the Enzoic API.  See https://www.enzoic.com to learn more.
