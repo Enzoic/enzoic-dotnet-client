@@ -22,13 +22,14 @@ namespace EnzoicClient
         private String apiKey;
         private String secret;
         private String authString;
-        private String apiBaseURL;
+        private String apiBaseURL = "https://api.enzoic.com/v1";
 
         /// <summary>
         /// Creates a new instance of Enzoic
         /// </summary>
         /// <param name="apiKey">your Enzoic API key</param>
         /// <param name="apiSecret">your Enzoic API secret</param>
+        /// <param name="apiBaseURL">(optional) specify the Credentials API endpoint to call, if different from default</param>
         public Enzoic(string apiKey, string apiSecret, string apiBaseURL = "https://api.enzoic.com/v1")
         {
             if (String.IsNullOrEmpty(apiKey))
@@ -42,6 +43,19 @@ namespace EnzoicClient
             this.secret = apiSecret;
             this.apiBaseURL = apiBaseURL;
             this.authString = "basic " + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(apiKey + ":" + secret));
+        }
+
+        /// <summary>
+        /// Creates a new instance of Enzoic, providing the authentication header directly rather than passing in
+        /// the API key and secret separately
+        /// </summary>
+        /// <param name="authString">the auth token to use in the Authorization header</param>
+        public Enzoic(string authString)
+        {
+            if (String.IsNullOrEmpty(authString))
+                throw new ArgumentException("authString cannot be null or empty");
+
+            this.authString = "basic " + authString;
         }
 
         /// <summary>

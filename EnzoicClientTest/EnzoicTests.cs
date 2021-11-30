@@ -22,6 +22,9 @@ namespace EnzoicClientTest
             Assert.IsTrue(CheckConstructorWithParameters("", "test"));
             Assert.IsTrue(CheckConstructorWithParameters("test", ""));
             Assert.IsFalse(CheckConstructorWithParameters("test", "test"));
+            
+            Assert.IsTrue(CheckAlternateConstructorWithParameters(""));
+            Assert.IsFalse(CheckAlternateConstructorWithParameters("test"));
         }
 
         [TestMethod]
@@ -147,6 +150,20 @@ namespace EnzoicClientTest
             return false;
         }
 
+        private bool CheckAlternateConstructorWithParameters(String authString)
+        {
+            try
+            {
+                new Enzoic(authString);
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
         private Enzoic GetEnzoic()
         {
             return new Enzoic(GetAPIKey(), GetAPISecret());
