@@ -63,6 +63,11 @@ namespace EnzoicClient
         }
 
         /// <summary>
+        /// Specifies an instance of an implementation of IWebProxy to use for Enzoic API web requests
+        /// </summary>
+        public IWebProxy Proxy { get; set; } = null;
+
+        /// <summary>
         /// Checks whether the provided password is in the Enzoic database of known, compromised passwords.
         /// @see <a href="https://www.enzoic.com/docs/passwords-api">https://www.enzoic.com/docs/passwords-api</a>
         /// </summary>
@@ -324,6 +329,11 @@ namespace EnzoicClient
 
             using (WebClient client = new WebClient())
             {
+                if (Proxy != null)
+                {
+                    client.Proxy = Proxy;
+                }
+
                 client.Headers["authorization"] = this.authString;
 
                 try
