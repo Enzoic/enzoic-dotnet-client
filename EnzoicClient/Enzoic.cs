@@ -22,7 +22,6 @@ namespace EnzoicClient
         private String apiKey;
         private String secret;
         private String authString;
-        private String apiBaseURL = "https://api.enzoic.com/v1";
 
         /// <summary>
         /// Creates a new instance of Enzoic
@@ -41,7 +40,7 @@ namespace EnzoicClient
 
             this.apiKey = apiKey;
             this.secret = apiSecret;
-            this.apiBaseURL = apiBaseURL;
+            BaseURL = apiBaseURL;
             this.authString = "basic " + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(apiKey + ":" + secret));
         }
 
@@ -57,6 +56,16 @@ namespace EnzoicClient
 
             this.authString = "basic " + authString;
         }
+
+        /// <summary>
+        /// Specifies the base URL to use when building full URLs to call the Enzoic API. This will default to the Enzoic production environment.
+        /// </summary>
+        public string BaseURL { get; set; } = "https://api.enzoic.com/v1";
+
+        /// <summary>
+        /// Specifies an instance of an implementation of IWebProxy to use for Enzoic API web requests
+        /// </summary>
+        public IWebProxy Proxy { get; set; } = null;
 
         /// <summary>
         /// Checks whether the provided password is in the Enzoic database of known, compromised passwords.
@@ -93,7 +102,7 @@ namespace EnzoicClient
             string sha256 = Hashing.CalcSHA256(password);
 
             String response = MakeRestCall(
-                apiBaseURL + PASSWORDS_API_PATH +
+                BaseURL + PASSWORDS_API_PATH +
                 "?partial_md5=" + md5.Substring(0, 10) +
                 "&partial_sha1=" + sha1.Substring(0, 10) +
                 "&partial_sha256=" + sha256.Substring(0, 10),
@@ -150,7 +159,7 @@ namespace EnzoicClient
             PasswordType[] excludeHashTypes = null, bool useRawCredentials = false)
         {
             String response = MakeRestCall(
-                apiBaseURL + ACCOUNTS_API_PATH + "?username=" +
+                BaseURL + ACCOUNTS_API_PATH + "?username=" +
                 WebUtility.UrlEncode(Hashing.CalcSHA256(username)) +
                 (useRawCredentials ? "&includeHashes=1" : ""),
                 "GET", null);
@@ -239,7 +248,7 @@ namespace EnzoicClient
                 if (queryString.Length > 0)
                 {
                     String credsResponse = MakeRestCall(
-                        apiBaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
+                        BaseURL + CREDENTIALS_API_PATH + queryString, "GET", null);
 
                     if (credsResponse != "404")
                     {
@@ -271,7 +280,7 @@ namespace EnzoicClient
             ExposuresResponse result;
 
             String response =
-                MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?username=" + WebUtility.UrlEncode(username), "GET",
+                MakeRestCall(BaseURL + EXPOSURES_API_PATH + "?username=" + WebUtility.UrlEncode(username), "GET",
                     null);
 
             if (response == "404")
@@ -302,7 +311,7 @@ namespace EnzoicClient
         {
             ExposureDetails result = null;
 
-            String response = MakeRestCall(apiBaseURL + EXPOSURES_API_PATH + "?id=" + WebUtility.UrlEncode(exposureID),
+            String response = MakeRestCall(BaseURL + EXPOSURES_API_PATH + "?id=" + WebUtility.UrlEncode(exposureID),
                 "GET", null);
 
             if (response != "404")
@@ -320,6 +329,11 @@ namespace EnzoicClient
 
             using (WebClient client = new WebClient())
             {
+                if (Proxy != null)
+                {
+                    client.Proxy = Proxy;
+                }
+
                 client.Headers["authorization"] = this.authString;
 
                 try
