@@ -7,13 +7,13 @@
     <Company>Enzoic</Company>
     <Product>EnzoicClientLibrary</Product>
     <PackageId>Enzoic</PackageId>
-    <Copyright>Copyright 2017-2021</Copyright>
+    <Copyright>Copyright 2017-2022</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/enzoic/enzoic-dotnet-client</PackageProjectUrl>
     <Description>Client library for the Enzoic API</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/enzoic/enzoic-dotnet-client</RepositoryUrl>
-    <PackageVersion>4.1.2</PackageVersion>
+    <PackageVersion>4.2.3</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">

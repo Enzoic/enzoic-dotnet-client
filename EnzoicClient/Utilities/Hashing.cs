@@ -6,15 +6,12 @@ using System.Data.HashFunction.CRC;
 using EnzoicClient.Enums;
 using Konscious.Security.Cryptography;
 using CryptSharp;
+using Org.BouncyCastle.Crypto;
 
 namespace EnzoicClient.Utilities
 {
     public static class Hashing
     {
-        private static SHA512Managed sha512 = new SHA512Managed();
-        private static SHA256Managed sha2 = new SHA256Managed();
-        private static SHA1Managed sha1 = new SHA1Managed();
-        private static MD5 md5 = MD5.Create();
         private static ICRC crc32 = CRCFactory.Instance.Create();
 
         public static string CalcPasswordHash(PasswordType passwordType, string password, string salt = "")
@@ -63,7 +60,7 @@ namespace EnzoicClient.Utilities
                 case PasswordType.PunBB:
                     return CalcPunBB(password, salt);
                 case PasswordType.osCommerce_AEF:
-                    return ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(salt + password)));
+                    return CalcMD5(salt + password);
                 case PasswordType.PartialMD5_20:
                     return CalcMD5(password).Substring(0, 20);
                 case PasswordType.AVE_DataLife_Diferior:
@@ -95,7 +92,8 @@ namespace EnzoicClient.Utilities
                 case PasswordType.CustomAlgorithm10:
                     return CalcCustomAlgorithm10(password, salt);
                 default:
-                    throw new Exception("Unsupported PasswordType in PasswordHashCalc");
+                    return null;
+                    //throw new Exception("Unsupported PasswordType in PasswordHashCalc");
             }
         }
 
@@ -106,12 +104,12 @@ namespace EnzoicClient.Utilities
 
         public static string CalcVBulletinHash(string password, string salt)
         {
-            return ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(CalcMD5(password) + salt)));
+            return CalcMD5(CalcMD5(password) + salt);
         }
 
         public static string CalcIPBoardHash(string password, string salt)
         {
-            return ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(CalcMD5(salt) + CalcMD5(password))));
+            return CalcMD5(CalcMD5(salt) + CalcMD5(password));
         }
 
         public static string CalcCRC32(string password)
@@ -128,9 +126,8 @@ namespace EnzoicClient.Utilities
         {
             // SHA-512(pass.salt) XOR whirlpool(salt.pass)
             string toWhirlpool = salt + password;
-            string toSha = password + salt;
 
-            byte[] sha512Out = sha512.ComputeHash(Encoding.UTF8.GetBytes(toSha));
+            byte[] sha512Out = CalcSHA512Raw(password + salt);
 
             WhirlpoolDigest digest = new WhirlpoolDigest();
             digest.BlockUpdate(Encoding.UTF8.GetBytes(toWhirlpool), 0, toWhirlpool.Length);
@@ -143,29 +140,73 @@ namespace EnzoicClient.Utilities
             return ToHexString(finalOut);
         }
 
+        public static byte[] CalcMD5Raw(string password)
+        {
+            return CalcBouncyCastleHash<MD5Digest>(password);
+        }
+
         public static string CalcMD5(string password)
         {
-            return ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            return ToHexString(CalcMD5Raw(password));
+        }
+
+        public static byte[] CalcSHA1Raw(string password)
+        {
+            return CalcBouncyCastleHash<Sha1Digest>(password);
+        }
+
+        public static byte[] CalcSHA1Raw(byte[] password)
+        {
+            return CalcBouncyCastleHash<Sha1Digest>(password);
         }
 
         public static string CalcSHA1(string password)
         {
-            return ToHexString(sha1.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            return ToHexString(CalcSHA1Raw(password));
+        }
+
+        public static string CalcSHA1(byte[] password)
+        {
+            return ToHexString(CalcSHA1Raw(password));
+        }
+        
+        public static byte[] CalcSHA256Raw(string password)
+        {
+            return CalcBouncyCastleHash<Sha256Digest>(password);
         }
 
         public static string CalcSHA256(string password)
         {
-            return ToHexString(sha2.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            return ToHexString(CalcSHA256Raw(password));
+        }
+
+        public static byte[] CalcSHA512Raw(string password)
+        {
+            return CalcBouncyCastleHash<Sha512Digest>(password);
         }
 
         public static string CalcSHA512(string password)
         {
-            return ToHexString(sha512.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            return ToHexString(CalcSHA512Raw(password));
+        }
+
+        private static byte[] CalcBouncyCastleHash<TDigest>(string value) where TDigest : IDigest, new()
+        {
+            return CalcBouncyCastleHash<TDigest>(Encoding.UTF8.GetBytes(value));
+        }
+
+        private static byte[] CalcBouncyCastleHash<TDigest>(byte[] value) where TDigest : IDigest, new()
+        {
+            TDigest hash = new TDigest();
+            hash.BlockUpdate(value, 0, value.Length);
+            byte[] result = new byte[hash.GetDigestSize()];
+            hash.DoFinal(result, 0);
+            return result;
         }
 
         public static string CalcCustomAlgorithm2(string password, string salt)
         {
-            return ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(password + salt)));
+            return CalcMD5(password + salt);
         }
 
         public static string CalcCustomAlgorithm4(string password, string salt)
@@ -221,12 +262,12 @@ namespace EnzoicClient.Utilities
 
         public static string CalcMySQLPost4_1(string password)
         {
-            return "*" + ToHexString(sha1.ComputeHash(sha1.ComputeHash(Encoding.UTF8.GetBytes(password))));
+            return "*" + CalcSHA1((CalcSHA1Raw(password)));
         }
 
         public static string CalcPeopleSoft(string password)
         {
-            return Convert.ToBase64String(sha1.ComputeHash(Encoding.Unicode.GetBytes(password)));
+            return Convert.ToBase64String(CalcSHA1Raw(Encoding.Unicode.GetBytes(password)));
         }
 
         public static string CalcPunBB(string password, string salt)
@@ -267,8 +308,7 @@ namespace EnzoicClient.Utilities
 
         public static string CalcSHA384(string password)
         {
-            using (SHA384Managed sha384 = new SHA384Managed())
-                return ToHexString(sha384.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            return ToHexString(CalcBouncyCastleHash<Sha384Digest>(password));
         }
 
         public static string CalcCustomAlgorithm7(string password, string salt)
