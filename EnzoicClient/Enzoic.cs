@@ -160,7 +160,7 @@ namespace EnzoicClient
         {
             String response = MakeRestCall(
                 BaseURL + ACCOUNTS_API_PATH + "?username=" +
-                WebUtility.UrlEncode(Hashing.CalcSHA256(username)) +
+                WebUtility.UrlEncode(Hashing.CalcSHA256(username.ToLower())) +
                 (useRawCredentials ? "&includeHashes=1" : ""),
                 "GET", null);
 

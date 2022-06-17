@@ -3,7 +3,7 @@
   <metadata>
     <id>Enzoic</id>
 
-    <version>4.2.3.0</version>
+    <version>4.2.4.0</version>
 
     <authors>Enzoic</authors>
 
@@ -22,7 +22,7 @@
       Enzoic client library for .NET.  Wraps the Enzoic API.  See https://www.enzoic.com to learn more.
     </description>
 
-    <copyright>Copyright ©2018-2021 Enzoic</copyright>
+    <copyright>Copyright ©2018-2022 Enzoic</copyright>
 
     <tags>enzoic security passwords authentication credentials</tags>
 
