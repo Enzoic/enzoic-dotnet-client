@@ -91,6 +91,10 @@ namespace EnzoicClient.Utilities
                     return CalcSHA512Crypt(password, salt);
                 case PasswordType.CustomAlgorithm10:
                     return CalcCustomAlgorithm10(password, salt);
+                case PasswordType.SHA256Crypt:
+                    return CalcSHA256Crypt(password, salt);
+                case PasswordType.AuthMeSHA256:
+                    return CalcAuthMeSHA256(password, salt);
                 default:
                     return null;
                     //throw new Exception("Unsupported PasswordType in PasswordHashCalc");
@@ -233,7 +237,7 @@ namespace EnzoicClient.Utilities
         {
             return CryptSharp.Sha256Crypter.Sha256.Crypt(Encoding.UTF8.GetBytes(password), salt);
         }
-
+        
         public static string CalcMySQLPre4_1(string password)
         {
             uint result1;
@@ -339,10 +343,20 @@ namespace EnzoicClient.Utilities
         {
             return Sha512Crypter.Sha512.Crypt(Encoding.UTF8.GetBytes(password), salt);
         }
-
+        
         public static string CalcCustomAlgorithm10(string password, string salt)
         {
             return CalcSHA512(password + ":" + salt);
+        }
+
+        public static string CalcSHA256Crypt(string password, string salt)
+        {
+            return Sha256Crypter.Sha256.Crypt(Encoding.UTF8.GetBytes(password), salt);
+        }
+
+        public static string CalcAuthMeSHA256(string password, string salt)
+        {
+            return "$SHA$" + salt + "$" + Hashing.CalcSHA256(Hashing.CalcSHA256(password) + salt);
         }
 
         public static string CalcArgon2(string password, string salt)

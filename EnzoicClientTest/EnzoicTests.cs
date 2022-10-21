@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EnzoicClient;
 using EnzoicClient.Enums;
@@ -91,7 +92,7 @@ namespace EnzoicClientTest
         public void TestGetExposureDetails()
         {
             Enzoic enzoic = GetEnzoic();
-
+            
             // test bad value
             ExposureDetails result = enzoic.GetExposureDetails("111111111111111111111111");
             Assert.AreEqual(null, result);
@@ -132,6 +133,52 @@ namespace EnzoicClientTest
             Assert.IsTrue(enzoic.CheckPassword("password", out revealedInExposure, out relativeExposureFrequency));
             Assert.AreEqual(true, revealedInExposure);
             Assert.IsTrue(relativeExposureFrequency > 0);
+        }
+        
+        [TestMethod]
+        public void TestGetUserPasswords()
+        {
+            Enzoic enzoic = GetEnzoic();
+
+            UserPasswords response = enzoic.GetUserPasswords("eicar_0@enzoic.com");
+            
+            Assert.IsTrue(response.LastBreachDate == new DateTime(2022, 10, 14, 7, 2, 40, DateTimeKind.Utc));
+            Assert.IsTrue(response.Passwords.Length == 4);
+            Assert.IsTrue(response.Passwords[0].HashType == PasswordType.Plaintext);
+            Assert.IsTrue(response.Passwords[0].Salt == "");
+            Assert.IsTrue(response.Passwords[0].Password == "password123");
+            Assert.IsTrue(response.Passwords[0].Exposures.Length == 2);
+            Assert.IsTrue(response.Passwords[0].Exposures[0] == "634908d2e0513eb0788aa0b9");
+            Assert.IsTrue(response.Passwords[0].Exposures[1] == "634908d06715cc1b5b201a1a");
+            
+            Assert.IsTrue(response.Passwords[3].HashType == PasswordType.Plaintext);
+            Assert.IsTrue(response.Passwords[3].Salt == "");
+            Assert.IsTrue(response.Passwords[3].Password == "123456");
+            Assert.IsTrue(response.Passwords[3].Exposures.Length == 2);
+            Assert.IsTrue(response.Passwords[3].Exposures[0] == "63490990e0513eb0788aa0d1");
+            Assert.IsTrue(response.Passwords[3].Exposures[1] == "634908d0e0513eb0788aa0b5");
+            
+            response = enzoic.GetUserPasswords("eicar_type8@enzoic.com");
+            Assert.IsTrue(response.LastBreachDate == new DateTime(2022, 5, 3, 5, 12, 43, DateTimeKind.Utc));
+            Assert.IsTrue(response.Passwords.Length == 2);
+            Assert.IsTrue(response.Passwords[0].HashType == PasswordType.BCrypt);
+            Assert.IsTrue(response.Passwords[0].Salt == "$2a$10$LuodKoFv1YoTRpRBHjfeJ.");
+            Assert.IsTrue(response.Passwords[0].Password == "$2a$10$LuodKoFv1YoTRpRBHjfeJ.HsMNx6Ln/Qo/jlSHDa6XpWm/SYoSroG");
+            Assert.IsTrue(response.Passwords[0].Exposures.Length == 1);
+            Assert.IsTrue(response.Passwords[0].Exposures[0] == "6270b9cb0323b3bb8faed96c");
+            
+            // test account without permissions
+            try
+            {
+                enzoic = new Enzoic(Environment.GetEnvironmentVariable("PP_API_KEY_2"),
+                    Environment.GetEnvironmentVariable("PP_API_SECRET_2"));
+                enzoic.GetUserPasswords("eicar_0@enzoic.com");
+                Assert.IsTrue(false);
+            }
+            catch (WebException ex)
+            {
+                Assert.IsTrue((ex.Response as HttpWebResponse).StatusCode == HttpStatusCode.Forbidden);    
+            }
         }
 
         // HELPER METHODS

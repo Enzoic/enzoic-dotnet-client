@@ -3,7 +3,7 @@
   <metadata>
     <id>Enzoic</id>
 
-    <version>4.2.4.0</version>
+    <version>4.3.0.0</version>
 
     <authors>Enzoic</authors>
 
@@ -16,7 +16,7 @@
 
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
-    <releaseNotes>Expose BaseURL and Proxy properties for certain specific use cases</releaseNotes>
+    <releaseNotes>Add support for new AuthMeSHA256 hash type.  Expose GetUserPasswords API call.</releaseNotes>
 
     <description>
       Enzoic client library for .NET.  Wraps the Enzoic API.  See https://www.enzoic.com to learn more.
