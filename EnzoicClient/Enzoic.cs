@@ -328,8 +328,8 @@ namespace EnzoicClient
         /// receive a rejection when attempting to call it.
         /// @see <a href="https://www.enzoic.com/docs-raw-passwords-api">https://www.enzoic.com/docs-raw-passwords-api</a>
         /// </summary>
-        /// <param name="exposureID">The ID of the Exposure</param>
-        /// <returns>The response body contains the details of the Exposure or null if the Exposure ID could not be found.</returns>
+        /// <param name="username">The username to return passwords for</param>
+        /// <returns>The response body contains a list of the user's passwords or null if the username could not be found.</returns>
         public UserPasswords GetUserPasswords(string username)
         {
             UserPasswords result = null;
