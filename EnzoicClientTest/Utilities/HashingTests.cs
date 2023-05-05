@@ -46,9 +46,14 @@ namespace EnzoicClientTest.Utilities
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm7, "123456", "123456"), "a753d386613efd6d4a534cec97e73890f8ec960fe6634db6dbfb9b2aab207982");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm8, "matthew", "Dn"), "9fc389447b7eb88aff45a1069bf89fbeff89b8fb7d11a6f450583fa4c9c70503");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm9, "0rangepeel", "6kpcxVSjagLgsNCUCr-D"), "07c691fa8b022b52ac1c44cab3e056b344a7945b6eb9db727e3842b28d94fe18c17fe5b47b1b9a29d8149acbd7b3f73866cc12f0a8a8b7ab4ac9470885e052dc");
-            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA512Crypt, "hashcat", "$6$52450745"), "$6$52450745$k5ka2p8bFuSmoVT1tzOyyuaREkkKBcCNqoDKzYiJL9RaE8yMnPgh2XzzF0NDrUhgrcLwg78xs1w5pJiypEdFX/");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm10, "chatbooks", "NqXCvAHUpAWAco3hVTG5Sg0FfmJRQPKi0LvcHwylzXHhSNuWwvYdMSSGzswi0ZdJ"), "bd17b9d14010a1d4f8c8077f1be1e20b9364d9979bbcf8591337e952cc6037026aa4a2025543d39169022344b4dd1d20f499395533e35705296034bbf7e7d663");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.HMACSHA1_SaltAsKey, "hashcat", "1234"), "d89c92b4400b15c39e462a8caa939ab40c3aeeea");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA256Crypt, "hashcat", "$5$GX7BopJZJxPc/KEK"), "$5$GX7BopJZJxPc/KEK$le16UF8I2Anb.rOrn22AUPWvzUETDGefUmAV8AZkGcD");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA256Crypt, "hashcat", "$5$rounds=5000$GX7BopJZJxPc/KEK"), "$5$rounds=5000$GX7BopJZJxPc/KEK$le16UF8I2Anb.rOrn22AUPWvzUETDGefUmAV8AZkGcD");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA256Crypt, "hashcat", "$5$rounds=4000$GX7BopJZJxPc/KEK"), "$5$rounds=4000$GX7BopJZJxPc/KEK$sn.Ds3.Gebi0n6vih/PyOUqlagz5FGk1ITvNh7f1ZMC");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA512Crypt, "hashcat", "$6$52450745"), "$6$52450745$k5ka2p8bFuSmoVT1tzOyyuaREkkKBcCNqoDKzYiJL9RaE8yMnPgh2XzzF0NDrUhgrcLwg78xs1w5pJiypEdFX/");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA512Crypt, "hashcat", "$6$rounds=5000$52450745"), "$6$rounds=5000$52450745$k5ka2p8bFuSmoVT1tzOyyuaREkkKBcCNqoDKzYiJL9RaE8yMnPgh2XzzF0NDrUhgrcLwg78xs1w5pJiypEdFX/");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.SHA512Crypt, "hashcat", "$6$rounds=4000$52450745"), "$6$rounds=4000$52450745$SpwN1flz4M8T.VckR9l.UofKPTtPvUx3ZfNSAQ.ruUsFBCvC1mz49quqhSrPjK4p25hfLcDZF/86iiA0n38Dh/");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.AuthMeSHA256, "hashcat", "7218532375810603"), "$SHA$7218532375810603$bfede293ecf6539211a7305ea218b9f3f608953130405cda9eaba6fb6250f824");
         }
 
