@@ -69,7 +69,10 @@ namespace EnzoicClient
 
         /// <summary>
         /// Checks whether the provided password is in the Enzoic database of known, compromised passwords.
-        /// @see <a href="https://www.enzoic.com/docs-passwords-api">https://www.enzoic.com/docs-passwords-api</a>
+        /// @see
+        /// <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/passwords-api">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/passwords-api
+        /// </a>
         /// </summary>
         /// <param name="password">The password to be checked</param>
         /// <returns>True if the password is a known, compromised password and should not be used</returns>
@@ -83,7 +86,10 @@ namespace EnzoicClient
 
         /// <summary>
         /// Checks whether the provided password is in the Enzoic database of known, compromised passwords.
-        /// @see <a href="https://www.enzoic.com/docs-passwords-api">https://www.enzoic.com/docs-passwords-api</a>
+        /// @see
+        /// <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/passwords-api">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/passwords-api
+        /// </a>
         /// </summary>
         /// <param name="password">The password to be checked</param>
         /// <param name="revealedInExposure">Out parameter.  Whether the password was exposed in a known data Exposure. If this value 
@@ -135,7 +141,9 @@ namespace EnzoicClient
         /// are known to be compromised.
         /// This call is made securely to the server - only a salted and hashed representation of the credentials are passed and
         /// the salt value is not passed along with it.
-        /// @see <a href="https://www.enzoic.com/docs-credentials-api">https://www.enzoic.com/docs-credentials-api</a>
+        /// @see <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/credentials-api">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/credentials-api
+        /// </a>
         /// </summary>
         /// <param name="username">the username to check - may be an email address or username</param>
         /// <param name="password">the password to check</param>
@@ -271,10 +279,12 @@ namespace EnzoicClient
 
         /// <summary>
         /// Returns all of the credentials Exposures that have been found for a given username.
-        /// @see <a href="https://www.enzoic.com/docs-exposures-api#get-exposures">https://www.enzoic.com/docs-exposures-api#get-exposures</a>
+        /// @see <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/exposures-api/get-exposures-for-an-email-address">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/exposures-api/get-exposures-for-an-email-address</a>
         /// </summary>
         /// <param name="username">The username or email address of the user to check</param>
-        /// <returns>The response contains an array of exposure IDs for this user.  These IDs can be used with the GetExposureDetails call to get additional information about each Exposure.</returns>
+        /// <returns>The response contains an array of exposure IDs for this user.  These IDs can be used with the
+        /// GetExposureDetails call to get additional information about each Exposure.</returns>
         public ExposuresResponse GetExposuresForUser(string username)
         {
             ExposuresResponse result;
@@ -303,7 +313,9 @@ namespace EnzoicClient
 
         /// <summary>
         /// Returns the detailed information for a credentials Exposure.
-        /// @see <a href="https://www.enzoic.com/docs-exposures-api#get-exposure-details">https://www.enzoic.com/docs-exposures-api#get-exposure-details</a>
+        /// @see <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/exposures-api/retrieve-details-for-an-exposure">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/exposures-api/retrieve-details-for-an-exposure
+        /// </a>
         /// </summary>
         /// <param name="exposureID">The ID of the Exposure</param>
         /// <returns>The response body contains the details of the Exposure or null if the Exposure ID could not be found.</returns>
@@ -326,23 +338,53 @@ namespace EnzoicClient
         /// <summary>
         /// Returns a list of passwords that Enzoic has found for a specific user.  This call must be enabled for your account or you will
         /// receive a rejection when attempting to call it.
-        /// @see <a href="https://www.enzoic.com/docs-raw-passwords-api">https://www.enzoic.com/docs-raw-passwords-api</a>
+        /// @see <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/credentials-api/cleartext-credentials-api">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/credentials-api/cleartext-credentials-api
+        /// </a>
         /// </summary>
         /// <param name="username">The username to return passwords for</param>
+        /// <param name="includeExposureDetails">(Optional) Whether to include full details about the exposures where the password was found - otherwise just returns the Exposure IDs, which can later be used with GetExposureDetails to retrieve full details.</param>
         /// <returns>The response body contains a list of the user's passwords or null if the username could not be found.</returns>
-        public UserPasswords GetUserPasswords(string username)
+        public UserPasswords GetUserPasswords(string username, bool includeExposureDetails = false)
         {
             UserPasswords result = null;
 
             String response = MakeRestCall(BaseURL + ACCOUNTS_API_PATH + "?username=" + 
                WebUtility.UrlEncode(Hashing.CalcSHA256(username.ToLower())) +
-               "&includePasswords=1",
+               "&includePasswords=1" + (includeExposureDetails ? "&includeExposureDetails=1" : ""),
                 "GET", null);
 
             if (response != "404")
             {
                 // deserialize response
                 result = JsonConvert.DeserializeObject<UserPasswords>(response);
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// Returns a list of passwords that Enzoic has found for a specific user, along with full exposure details inline.
+        /// This call must be enabled for your account or you will receive a rejection when attempting to call it.
+        /// @see <a href="https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/credentials-api/cleartext-credentials-api">
+        /// https://docs.enzoic.com/enzoic-api-developer-documentation/api-reference/credentials-api/cleartext-credentials-api
+        /// </a>
+        /// </summary>
+        /// <param name="username">The username to return passwords for</param>
+        /// <returns>The response body contains a list of the user's passwords or null if the username could not be found.</returns>
+        public UserPasswordsWithExposureDetails GetUserPasswordsWithExposureDetails(string username)
+        {
+            UserPasswordsWithExposureDetails result = null;
+
+            String response = MakeRestCall(BaseURL + ACCOUNTS_API_PATH + "?username=" + 
+                                           WebUtility.UrlEncode(Hashing.CalcSHA256(username.ToLower())) +
+                                           "&includePasswords=1&includeExposureDetails=1",
+                "GET", null);
+
+            if (response != "404")
+            {
+                // deserialize response
+                result = JsonConvert.DeserializeObject<UserPasswordsWithExposureDetails>(response);
             }
 
             return result;

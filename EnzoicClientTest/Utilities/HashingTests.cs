@@ -24,7 +24,7 @@ namespace EnzoicClientTest.Utilities
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.vBulletinPost3_8_5, "123456", "123"), "77d3b7ed9db7d236b9eac8262d27f6a5");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.vBulletinPre3_8_5, "123456", "123"), "77d3b7ed9db7d236b9eac8262d27f6a5");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.MD5Crypt, "123456", "$1$4d3c09ea"), "$1$4d3c09ea$hPwyka2ToWFbLTOq.yFjf.");
-            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm4, "1234", "$2y$12$Yjk3YjIzYWIxNDg0YWMzZOpp/eAMuWCD3UwX1oYgRlC1ci4Al970W"), "$2y$12$Yjk3YjIzYWIxNDg0YWMzZOpp/eAMuWCD3UwX1oYgRlC1ci4Al970W");
+            Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm4, "1234", "$2y$12$Yjk3YjIzYWIxNDg0YWMzZO"), "$2y$12$Yjk3YjIzYWIxNDg0YWMzZOpp/eAMuWCD3UwX1oYgRlC1ci4Al970W");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.CustomAlgorithm5, "password", "123456"), "69e7ade919a318d8ecf6fd540bad9f169bce40df4cae4ac1fb6be2c48c514163");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.osCommerce_AEF, "password", "123"), "d2bc2f8d09990ebe87c809684fd78c66");
             Assert.AreEqual(Hashing.CalcPasswordHash(PasswordType.DESCrypt, "qwerty", "yD"), "yDba8kDA7NUDQ");

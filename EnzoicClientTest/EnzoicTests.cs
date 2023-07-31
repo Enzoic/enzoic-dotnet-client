@@ -166,7 +166,18 @@ namespace EnzoicClientTest
             Assert.IsTrue(response.Passwords[0].Password == "$2a$10$LuodKoFv1YoTRpRBHjfeJ.HsMNx6Ln/Qo/jlSHDa6XpWm/SYoSroG");
             Assert.IsTrue(response.Passwords[0].Exposures.Length == 1);
             Assert.IsTrue(response.Passwords[0].Exposures[0] == "6270b9cb0323b3bb8faed96c");
-            
+
+            // test with includeExposureDetails flag
+            var responseWithDetails = enzoic.GetUserPasswordsWithExposureDetails("eicar_type8@enzoic.com");
+            Assert.IsTrue(responseWithDetails.LastBreachDate == new DateTime(2022, 5, 3, 5, 12, 43, DateTimeKind.Utc));
+            Assert.IsTrue(responseWithDetails.Passwords.Length == 2);
+            Assert.IsTrue(responseWithDetails.Passwords[0].HashType == PasswordType.BCrypt);
+            Assert.IsTrue(responseWithDetails.Passwords[0].Salt == "$2a$10$LuodKoFv1YoTRpRBHjfeJ.");
+            Assert.IsTrue(responseWithDetails.Passwords[0].Password == "$2a$10$LuodKoFv1YoTRpRBHjfeJ.HsMNx6Ln/Qo/jlSHDa6XpWm/SYoSroG");
+            Assert.IsTrue(responseWithDetails.Passwords[0].Exposures.Length == 1);
+            Assert.IsTrue(responseWithDetails.Passwords[0].Exposures[0].ID == "6270b9cb0323b3bb8faed96c");
+            Assert.AreEqual("enzoic.com test breach BCrypt", responseWithDetails.Passwords[0].Exposures[0].Title);
+
             // test account without permissions
             try
             {
